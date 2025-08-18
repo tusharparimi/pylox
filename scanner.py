@@ -73,7 +73,7 @@ class Scanner:
             case '>': self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
 
             case '/':
-                if self.match('/'): # single line coments start
+                if self.match('/'): # single line comments start
                     while (self.peek() != '\n' and not self.is_at_end()): self.advance()
                 elif self.match('*'): # multi line comments start
                     while ((self.peek() != '*' and self.peek() != '/') and not self.is_at_end()): self.advance()
