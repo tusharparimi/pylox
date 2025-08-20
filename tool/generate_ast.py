@@ -17,14 +17,29 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
     try:
         path: str = output_dir + "/" + base_name.lower() + ".py"
         with open(path, mode="w", encoding="utf-8") as file:
-            file.write("from abc import ABC")
+            file.write("from __future__ import annotations")
+            file.write("\n")
+            file.write("from abc import ABC, abstractmmethod")
             file.write("\n")
             file.write("from dataclasses import dataclass")
             file.write("\n")
+            file.write("from typing import Protocol")
+            file.write("\n")
             file.write("from tokens import Token")
             file.write("\n\n")
+
+            file.write("class Visitor(Protocol):")
+            for type in types:
+                type_name = type.split("=")[0].strip()
+                file.write("\n\t")
+                file.write(f"def visit_{type_name}_{base_name}({type_name.lower()}: {type_name}): ...")
+
+            file.write("\n\n")
             file.write(f"class {base_name}(ABC):")
-            file.write("\n\tpass")
+            file.write("\n\t")
+            file.write("@abstractmmethod")
+            file.write("\n\t")
+            file.write("def accept(self, visitor: Visitor): ...")
 
             for type in types:
                 class_name = type.split("=")[0].strip()
@@ -43,6 +58,11 @@ def define_type(file: TextIO, base_name: str, class_name: str, fields: str) -> N
     for field in field_list:
         file.write("\n\t")
         file.write(field)
+
+    file.write("\n\n\t")
+    file.write("def accept(self, visitor: Visitor):")
+    file.write("\n\t\t")
+    file.write(f"return visitor.visit_{class_name}_{base_name}(self)")
 
 if __name__ == "__main__":
     main()
