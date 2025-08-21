@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol
-from tokens import Token
+from pylox.tokens import Token
 
 class Visitor(Protocol):
 	def visit_Binary_Expr(self, binary: Binary): ...

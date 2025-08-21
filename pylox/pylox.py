@@ -1,7 +1,7 @@
 import sys
-from scanner import Scanner
-from tokens import Token
-from error import ErrorReporter
+from pylox.scanner import Scanner
+from pylox.tokens import Token
+from pylox.error import ErrorReporter
 
 class Pylox:
     @staticmethod
@@ -20,7 +20,7 @@ class Pylox:
         if ErrorReporter.had_error: sys.exit(65)
 
     @staticmethod
-    def run_prompt():
+    def run_prompt() -> None:
         while True:
             try:
                 line: str = input(">>> ")

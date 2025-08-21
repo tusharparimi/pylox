@@ -1,4 +1,4 @@
-from tokentype import TokenType
+from pylox.tokentype import TokenType
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

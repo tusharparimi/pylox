@@ -1,6 +1,6 @@
-from expr import Expr, Binary, Grouping, Literal, Unary
-from tokens import Token
-from tokentype import TokenType
+from pylox.expr import Expr, Binary, Grouping, Literal, Unary
+from pylox.tokens import Token
+from pylox.tokentype import TokenType
 
 class RpnPrinter:
     def print(self, expr: Expr): return expr.accept(self)
@@ -27,7 +27,7 @@ class RpnPrinter:
         return res
     
 def main():
-    expression1: Expr = Binary(
+    expression1 = Binary(
         Unary(
             Token(TokenType.MINUS, "-", None, 1),
             Literal(123)
@@ -35,7 +35,7 @@ def main():
         Token(TokenType.STAR, "*", None, 1),
         Grouping(Literal(45.67))
     )
-    expression2: Expr = Binary(
+    expression2 = Binary(
         Binary(
             Literal(1),
             Token(TokenType.PLUS, "+", None, 1),
@@ -50,7 +50,6 @@ def main():
     )
     print(RpnPrinter().print(expression1))
     print(RpnPrinter().print(expression2))
-
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from tokens import Token
-from tokentype import TokenType
+from pylox.tokens import Token
+from pylox.tokentype import TokenType
 # from pylox import Pylox
-from error import ErrorReporter
+from pylox.error import ErrorReporter
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ class Scanner:
     def is_at_end(self) -> bool:
         return self.current >= len(self._scanner_data._source)
     
-    def scan_token(self):
+    def scan_token(self) -> None:
         c: str = self.advance()
         match c:
             case '(': self.add_token(TokenType.LEFT_PAREN)

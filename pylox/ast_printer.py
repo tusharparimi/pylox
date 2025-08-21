@@ -1,6 +1,6 @@
-from expr import Expr, Binary, Grouping, Literal, Unary
-from tokens import Token
-from tokentype import TokenType
+from pylox.expr import Expr, Binary, Grouping, Literal, Unary
+from pylox.tokens import Token
+from pylox.tokentype import TokenType
 
 class AstPrinter:
     def print(self, expr: Expr): return expr.accept(self)
@@ -28,7 +28,7 @@ class AstPrinter:
         return res
     
 def main():
-    expression: Expr = Binary(
+    expression = Binary(
         Unary(
             Token(TokenType.MINUS, "-", None, 1),
             Literal(123)
@@ -37,7 +37,6 @@ def main():
         Grouping(Literal(45.67))
     )
     print(AstPrinter().print(expression))
-
 
 if __name__ == "__main__":
     main()
