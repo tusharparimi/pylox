@@ -31,8 +31,10 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("class Visitor(Protocol):")
             for type in types:
                 type_name = type.split("=")[0].strip()
+                # file.write("\n\t")
+                # file.write("@staticmethod")
                 file.write("\n\t")
-                file.write(f"def visit_{type_name}_{base_name}({type_name.lower()}: {type_name}): ...")
+                file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
 
             file.write("\n\n")
             file.write(f"class {base_name}(ABC):")
