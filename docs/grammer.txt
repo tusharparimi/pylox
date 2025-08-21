@@ -11,3 +11,29 @@ unary          → ( "-" | "!" ) expression ;
 binary         → expression operator expression ;
 operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
                | "+"  | "-"  | "*" | "/" ;
+
+
+Precedence and Associativity
+
+Precedence from lowest to highest in te table below.
+
+Name           Operators       Associates
+Equality        == !=           Left
+Comparison      > >= < <=	    Left
+Term	        - +	            Left
+Factor	        / *	            Left
+Unary	        ! -	            Right
+
+
+Enhanced grammer (taking into account precedence and associativity) (eliminates prev.grammers's ambiguity)
+
+Each rule here only matches expressions at its precedence level or higher.
+
+expression      -> equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor          -> factor ("/" | "*") unary | unary ; # left recursive not good for parsing technique to be used
+factor          -> unary (("/" | "*") unary)* ;
+unary           -> ("-" | "!") unary | primary;
+primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
