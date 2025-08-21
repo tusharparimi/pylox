@@ -1,0 +1,45 @@
+from expr import Expr, Binary, Grouping, Literal, Unary
+from tokens import Token
+from tokentype import TokenType
+
+class AstPrinter:
+    def print(self, expr: Expr): return expr.accept(self)
+
+    def visit_Binary_Expr(self, binary: Binary):
+        return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
+    
+    def visit_Grouping_Expr(self, grouping: Grouping):
+        return self.parenthesize("group", grouping.expression)
+    
+    @staticmethod
+    def visit_Literal_Expr(literal: Literal):
+        if literal.value == None: return "nil"
+        return str(literal.value)
+    
+    def visit_Unary_Expr(self, unary: Unary):
+        return self.parenthesize(unary.operator.lexeme, unary.right)
+    
+    def parenthesize(self, name: str, *args: Expr):
+        res: str = "(" + name
+        for expr in args:
+            res += " "
+            res += expr.accept(self)
+        res += ")"
+        return res
+    
+def main():
+    expression: Expr = Binary(
+        Unary(
+            Token(TokenType.MINUS, "-", None, 1),
+            Literal(123)
+        ),
+        Token(TokenType.STAR, "*", None, 1),
+        Grouping(Literal(45.67))
+    )
+    print(AstPrinter().print(expression))
+
+
+if __name__ == "__main__":
+    main()
+
+    
