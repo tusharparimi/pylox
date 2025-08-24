@@ -2,10 +2,10 @@ class ErrorReporter:
     had_error: bool = False
 
     @classmethod
-    def error(self, line: int, message: str):
-        self.report(line, "", message)
+    def error(cls, line: int, message: str):
+        cls.report(line, "", message)
 
     @classmethod
-    def report(self, line: int, where: str, message: str):
+    def report(cls, line: int, where: str, message: str):
         print(f"[line {line}] Error{where}: {message}")
-        self.had_error = True
+        cls.had_error = True
