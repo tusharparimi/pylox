@@ -14,13 +14,21 @@ class Parser:
         except Parser.ParseError: return None
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.comma()
+    
+    def comma(self) -> Expr:
+        expr: Expr = self.equality()
+        while self.match([TokenType.COMMA]):
+            operator: Token = self.previous()
+            right: Expr = self.equality()
+            expr = Binary(expr, operator, right)
+        return expr
     
     def equality(self) -> Expr:
         expr: Expr = self.comparison()
         while (self.match([TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL])):
-            right: Expr = self.comparison()
             operator: Token = self.previous()
+            right: Expr = self.comparison()
             expr = Binary(expr, operator, right)
         return expr
 

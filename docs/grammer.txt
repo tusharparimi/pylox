@@ -18,6 +18,7 @@ Precedence and Associativity
 Precedence from lowest to highest in te table below.
 
 Name           Operators       Associates
+Comma           ,               Left
 Equality        == !=           Left
 Comparison      > >= < <=	    Left
 Term	        - +	            Left
@@ -30,6 +31,7 @@ Enhanced grammer (taking into account precedence and associativity) (eliminates 
 Each rule here only matches expressions at its precedence level or higher.
 
 expression      -> equality ;
+comma           -> equality ( "," equality )* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
