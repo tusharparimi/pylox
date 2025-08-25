@@ -19,7 +19,7 @@ class AstPrinter:
     def visit_Unary_Expr(self, unary: Unary):
         return self.parenthesize(unary.operator.lexeme, unary.right)
     
-    def parenthesize(self, name: str, *args: Expr):
+    def parenthesize(self, name: str, *args: Expr): # TODO: just use expr_list no *args
         res: str = "(" + name
         for expr in args:
             res += " "
