@@ -1,7 +1,11 @@
+# from __future__ import annotations
 import sys
 from pylox.scanner import Scanner
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
+from pylox.parser import Parser
+from pylox.ast_printer import AstPrinter
+from pylox.expr import Expr
 
 class Pylox:
     @staticmethod
@@ -33,7 +37,11 @@ class Pylox:
         scanner = Scanner(src)
         tokens: list[Token] = scanner.scan_tokens()
 
-        for token in tokens: print(token)
+        # for token in tokens: print(token)
+        parser = Parser(tokens)
+        expression: Expr = parser.parse()
+        if ErrorReporter.had_error: return
+        print(AstPrinter().print(expression))
 
 
 if __name__ == "__main__":
