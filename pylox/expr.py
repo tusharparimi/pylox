@@ -9,6 +9,7 @@ class Visitor(Protocol):
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
 	def visit_Unary_Expr(self, unary: Unary): ...
+	def visit_Ternary_Expr(self, ternary: Ternary): ...
 
 class Expr(ABC):
 	@abstractmethod
@@ -44,3 +45,14 @@ class Unary(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Unary_Expr(self)
+	
+@dataclass(frozen=True)
+class Ternary(Expr):
+	condition: Expr
+	operator1: Token
+	expr_if_true: Expr
+	operator2: Token
+	expr_if_false: Expr
+
+	def accept(self, visitor):
+		return visitor.visit_Ternary_Expr(self)

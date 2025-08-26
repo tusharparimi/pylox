@@ -4,6 +4,7 @@ class TokenType(Enum):
     # Single-character tokens.
     LEFT_PAREN = auto(); RIGHT_PAREN = auto(); LEFT_BRACE = auto(); RIGHT_BRACE = auto()
     COMMA = auto(); DOT = auto(); MINUS = auto(); PLUS = auto(); SEMICOLON = auto(); SLASH = auto(); STAR = auto()
+    COLON = auto(); QUESTION = auto()
 
     # One or two character tokens.
     BANG = auto(); BANG_EQUAL = auto()

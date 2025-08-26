@@ -1,4 +1,4 @@
-from pylox.expr import Expr, Binary, Grouping, Literal, Unary
+from pylox.expr import Expr, Binary, Grouping, Literal, Unary, Ternary
 from pylox.tokens import Token
 from pylox.tokentype import TokenType
 
@@ -18,6 +18,9 @@ class AstPrinter:
     
     def visit_Unary_Expr(self, unary: Unary):
         return self.parenthesize(unary.operator.lexeme, unary.right)
+    
+    def visit_Ternary_Expr(self, ternary: Ternary):
+        return self.parenthesize(ternary.operator1.lexeme + ternary.operator2.lexeme, ternary.condition, ternary.expr_if_true, ternary.expr_if_false)
     
     def parenthesize(self, name: str, *args: Expr): # TODO: just use expr_list no *args
         res: str = "(" + name

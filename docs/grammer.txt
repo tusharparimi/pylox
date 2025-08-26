@@ -19,6 +19,7 @@ Precedence from lowest to highest in te table below.
 
 Name           Operators       Associates
 Comma           ,               Left
+Ternary         ?:              Right
 Equality        == !=           Left
 Comparison      > >= < <=	    Left
 Term	        - +	            Left
@@ -32,6 +33,7 @@ Each rule here only matches expressions at its precedence level or higher.
 
 expression      -> equality ;
 comma           -> equality ( "," equality )* ;
+ternary         -> equality ( "?" equality ":" ternary )* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;

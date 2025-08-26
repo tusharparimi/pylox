@@ -60,6 +60,8 @@ class Scanner:
             case '-': self.add_token(TokenType.MINUS)
             case '+': self.add_token(TokenType.PLUS)
             case ';': self.add_token(TokenType.SEMICOLON)
+            case "?": self.add_token(TokenType.QUESTION)
+            case ":": self.add_token(TokenType.COLON)
             case '*':
                 if self.multi_line_comment_count > 0 and self.match('/'): 
                     self.advance()

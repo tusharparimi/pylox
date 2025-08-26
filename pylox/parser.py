@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 
@@ -17,11 +17,23 @@ class Parser:
         return self.comma()
     
     def comma(self) -> Expr:
-        expr: Expr = self.equality()
+        expr: Expr = self.ternary()
         while self.match([TokenType.COMMA]):
             operator: Token = self.previous()
-            right: Expr = self.equality()
+            right: Expr = self.ternary()
             expr = Binary(expr, operator, right)
+        return expr
+    
+    def ternary(self) -> Expr:
+        expr: Expr = self.equality()
+        if self.match([TokenType.QUESTION]):
+            operator1: Token = self.previous()
+            expr_if_true: Expr = self.equality()
+            if self.match([TokenType.COLON]):
+                operator2: Token = self.previous()
+                expr_if_false: Expr = self.ternary()
+                return Ternary(expr, operator1, expr_if_true, operator2, expr_if_false)
+            raise self.error(self.peek(), "'?' only allowed as part of ternary operator, corresponding ':' not found")
         return expr
     
     def equality(self) -> Expr:
