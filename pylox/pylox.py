@@ -40,7 +40,7 @@ class Pylox:
         # for token in tokens: print(token)
         parser = Parser(tokens)
         expression: Expr = parser.parse()
-        if ErrorReporter.had_error: return
+        # if ErrorReporter.had_error: return
         print(AstPrinter().print(expression))
 
 

@@ -25,6 +25,7 @@ class AstPrinter:
     def parenthesize(self, name: str, *args: Expr): # TODO: just use expr_list no *args
         res: str = "(" + name
         for expr in args:
+            if expr is None: return "_" # blank for error expressions
             res += " "
             res += expr.accept(self)
         res += ")"

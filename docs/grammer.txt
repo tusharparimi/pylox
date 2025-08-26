@@ -40,4 +40,5 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor          -> factor ("/" | "*") unary | unary ; # left recursive not good for parsing technique to be used
 factor          -> unary (("/" | "*") unary)* ;
 unary           -> ("-" | "!") unary | primary;
+unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | primary;
 primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;

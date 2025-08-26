@@ -124,6 +124,27 @@ class Parser:
             operator: Token = self.previous()
             right: Expr = self.unary()
             return Unary(operator, right)
+        elif self.match([TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL]):
+            operator: Token = self.previous()
+            print(operator)
+            self.error(operator, "Binary operator needs left and right operand")
+            right: Expr = self.equality()
+            return Binary(None, operator, right)
+        elif self.match([TokenType.LESS, TokenType.LESS_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL]):
+            operator: Token = self.previous()
+            self.error(operator, "Binary operator needs left and right operand")
+            right: Expr = self.comparison()
+            return Binary(None, operator, right)
+        elif self.match([TokenType.PLUS]):
+            operator: Token = self.previous()
+            self.error(operator, "Binary operator needs left and right operand")
+            right: Expr = self.term()
+            return Binary(None, operator, right)
+        elif self.match([TokenType.STAR, TokenType.SLASH]):
+            operator: Token = self.previous()
+            self.error(operator, "Binary operator needs left and right operand")
+            right: Expr = self.factor()
+            return Binary(None, operator, right)
         return self.primary()
 
     def primary(self) -> Expr:
