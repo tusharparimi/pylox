@@ -92,7 +92,7 @@ class Scanner:
             case _: 
                 if self.is_digit(c): self.number()
                 elif self.is_alpha(c): self.identifier()
-                else: ErrorReporter.error(self.line, "Unexpected character.")
+                else: ErrorReporter.error("Unexpected character.", line=self.line)
 
     def identifier(self):
         while self.is_alpha_numeric(self.peek()): self.advance()

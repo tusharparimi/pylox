@@ -78,7 +78,7 @@ class Parser:
         pass
     
     def error(self, token: Token, message: str) -> Parser.ParseError:
-        ErrorReporter.error(token, message)
+        ErrorReporter.error(message, token=token)
         return self.ParseError()
     
     def synchronize(self):

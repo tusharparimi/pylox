@@ -5,11 +5,12 @@ class ErrorReporter:
     had_error: bool = False
 
     @classmethod
-    def error(cls, token: Token, message: str):
-        if token.token_type == TokenType.EOF:
-            cls.report(token.line, " at end", message)
-        else:
-            cls.report(token.line, f" at '{token.lexeme}'", message)
+    def error(cls, message: str, **kwargs):
+        if "line" in kwargs: 
+            cls.report(kwargs["line"], "", message) # used in scanner
+            return
+        if kwargs["token"].token_type == TokenType.EOF: cls.report(kwargs["token"].line, " at end", message)
+        else: cls.report(kwargs["token"].line, f" at '{kwargs['token'].lexeme}'", message)
 
     @classmethod
     def report(cls, line: int, where: str, message: str):
