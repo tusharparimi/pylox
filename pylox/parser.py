@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary
 from pylox.tokentype import TokenType
@@ -51,7 +52,7 @@ class Parser:
                 return True
         return False
     
-    def consume(self, type: TokenType, message: str) -> None:
+    def consume(self, type: TokenType, message: str) -> Optional[Token]:
         if self.check(type): return self.advance()
         raise self.error(self.peek(), message)
 
@@ -125,25 +126,24 @@ class Parser:
             right: Expr = self.unary()
             return Unary(operator, right)
         elif self.match([TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL]):
-            operator: Token = self.previous()
-            print(operator)
+            operator = self.previous()
             self.error(operator, "Binary operator needs left and right operand")
-            right: Expr = self.equality()
+            right = self.equality()
             return Binary(None, operator, right)
         elif self.match([TokenType.LESS, TokenType.LESS_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL]):
-            operator: Token = self.previous()
+            operator = self.previous()
             self.error(operator, "Binary operator needs left and right operand")
-            right: Expr = self.comparison()
+            right = self.comparison()
             return Binary(None, operator, right)
         elif self.match([TokenType.PLUS]):
-            operator: Token = self.previous()
+            operator = self.previous()
             self.error(operator, "Binary operator needs left and right operand")
-            right: Expr = self.term()
+            right = self.term()
             return Binary(None, operator, right)
         elif self.match([TokenType.STAR, TokenType.SLASH]):
-            operator: Token = self.previous()
+            operator = self.previous()
             self.error(operator, "Binary operator needs left and right operand")
-            right: Expr = self.factor()
+            right = self.factor()
             return Binary(None, operator, right)
         return self.primary()
 
