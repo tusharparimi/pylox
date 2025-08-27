@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol
@@ -17,9 +18,9 @@ class Expr(ABC):
 
 @dataclass(frozen=True)
 class Binary(Expr):
-	left: Expr
+	left: Optional[Expr]
 	operator: Token
-	right: Expr
+	right: Optional[Expr]
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Binary_Expr(self)

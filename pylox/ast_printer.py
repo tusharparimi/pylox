@@ -1,3 +1,4 @@
+from typing import Optional
 from pylox.expr import Expr, Binary, Grouping, Literal, Unary, Ternary
 from pylox.tokens import Token
 from pylox.tokentype import TokenType
@@ -22,7 +23,7 @@ class AstPrinter:
     def visit_Ternary_Expr(self, ternary: Ternary) -> str:
         return self.parenthesize(ternary.operator1.lexeme + ternary.operator2.lexeme, ternary.condition, ternary.expr_if_true, ternary.expr_if_false)
     
-    def parenthesize(self, name: str, *args: Expr) -> str: # TODO: just use expr_list no *args
+    def parenthesize(self, name: str, *args: Optional[Expr]) -> str: # TODO: just use expr_list no *args
         res: str = "(" + name
         for expr in args:
             if expr is None: return "_" # blank for error expressions

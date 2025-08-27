@@ -1,3 +1,4 @@
+from typing import Optional
 from pylox.expr import Expr, Binary, Grouping, Literal, Unary, Ternary
 from pylox.tokens import Token
 from pylox.tokentype import TokenType
@@ -21,9 +22,10 @@ class RpnPrinter:
     def visit_Ternary_Expr(self, ternary: Ternary) -> str:
         return self.rpn_style(ternary.operator1.lexeme + ternary.operator2.lexeme, ternary.condition, ternary.expr_if_true, ternary.expr_if_false)
     
-    def rpn_style(self, name: str, *args: Expr):
+    def rpn_style(self, name: str, *args: Optional[Expr]):
         res: str = ""
         for expr in args:
+            if expr is None: return "_"
             res += expr.accept(self)
             res += " "
         res += name
