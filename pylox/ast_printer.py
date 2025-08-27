@@ -5,24 +5,24 @@ from pylox.tokentype import TokenType
 class AstPrinter:
     def print(self, expr: Expr): return expr.accept(self)
 
-    def visit_Binary_Expr(self, binary: Binary):
+    def visit_Binary_Expr(self, binary: Binary) -> str:
         return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
     
-    def visit_Grouping_Expr(self, grouping: Grouping):
+    def visit_Grouping_Expr(self, grouping: Grouping) -> str:
         return self.parenthesize("group", grouping.expression)
     
-    @staticmethod
-    def visit_Literal_Expr(literal: Literal):
+    @staticmethod  # TODO: why static check and remove
+    def visit_Literal_Expr(literal: Literal) -> str:
         if literal.value == None: return "nil"
         return str(literal.value)
     
-    def visit_Unary_Expr(self, unary: Unary):
+    def visit_Unary_Expr(self, unary: Unary) -> str:
         return self.parenthesize(unary.operator.lexeme, unary.right)
     
-    def visit_Ternary_Expr(self, ternary: Ternary):
+    def visit_Ternary_Expr(self, ternary: Ternary) -> str:
         return self.parenthesize(ternary.operator1.lexeme + ternary.operator2.lexeme, ternary.condition, ternary.expr_if_true, ternary.expr_if_false)
     
-    def parenthesize(self, name: str, *args: Expr): # TODO: just use expr_list no *args
+    def parenthesize(self, name: str, *args: Expr) -> str: # TODO: just use expr_list no *args
         res: str = "(" + name
         for expr in args:
             if expr is None: return "_" # blank for error expressions
