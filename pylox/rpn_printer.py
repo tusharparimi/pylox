@@ -1,22 +1,25 @@
-from pylox.expr import Expr, Binary, Grouping, Literal, Unary
+from pylox.expr import Expr, Binary, Grouping, Literal, Unary, Ternary
 from pylox.tokens import Token
 from pylox.tokentype import TokenType
 
 class RpnPrinter:
     def print(self, expr: Expr): return expr.accept(self)
 
-    def visit_Binary_Expr(self, binary: Binary):
+    def visit_Binary_Expr(self, binary: Binary) -> str:
         return self.rpn_style(binary.operator.lexeme, binary.left, binary.right)
     
-    def visit_Grouping_Expr(self, grouping: Grouping):
+    def visit_Grouping_Expr(self, grouping: Grouping) -> str:
         return self.rpn_style("group", grouping.expression)
     
-    def visit_Literal_Expr(self, literal: Literal):
+    def visit_Literal_Expr(self, literal: Literal) -> str:
         if literal.value == None: return "nil"
         return str(literal.value)
     
-    def visit_Unary_Expr(self, unary: Unary):
+    def visit_Unary_Expr(self, unary: Unary) -> str:
         return self.rpn_style(unary.operator.lexeme, unary.right)
+    
+    def visit_Ternary_Expr(self, ternary: Ternary) -> str:
+        return self.rpn_style(ternary.operator1.lexeme + ternary.operator2.lexeme, ternary.condition, ternary.expr_if_true, ternary.expr_if_false)
     
     def rpn_style(self, name: str, *args: Expr):
         res: str = ""
