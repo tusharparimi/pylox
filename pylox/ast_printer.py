@@ -4,8 +4,9 @@ from pylox.tokens import Token
 from pylox.tokentype import TokenType
 
 class AstPrinter:
-    def print(self, expr: Expr) -> str: 
-        return expr.accept(self)
+    def print(self, expr: Optional[Expr]) -> str: 
+        if isinstance(expr, Expr): return expr.accept(self)
+        return "_"
 
     def visit_Binary_Expr(self, binary: Binary) -> str:
         return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
