@@ -48,7 +48,7 @@ class Interpreter:
         return True
     
     def visit_Binary_Expr(self, expr: Binary) -> object:
-        left: object = self.evaluate(expr.left) # TODO: error: Argument 1 to "evaluate" of "Interpreter" has incompatible type "Expr | None"; expected "Expr"  [arg-type]
+        left: object = self.evaluate(expr.left)
         right: object = self.evaluate(expr.right)
         match expr.operator.token_type:
             case TokenType.MINUS: 
