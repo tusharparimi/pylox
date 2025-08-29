@@ -46,7 +46,7 @@ class Interpreter:
         return True
     
     def visit_Binary_Expr(self, expr: Binary) -> object:
-        left: object = self.evaluate(expr.left)
+        left: object = self.evaluate(expr.left) # TODO: error: Argument 1 to "evaluate" of "Interpreter" has incompatible type "Expr | None"; expected "Expr"  [arg-type]
         right: object = self.evaluate(expr.right)
         match expr.operator.token_type:
             case TokenType.MINUS: 
@@ -90,3 +90,7 @@ class Interpreter:
     def check_number_operands(self, operator: Token, left: object, right: object):
         if isinstance(left, float) and isinstance(right, float): return
         raise PyloxRuntimeError(operator, "Operands must be numbers.")
+    
+    def visit_Ternary_Expr(self, expr: Ternary) -> object:
+        # TODO: implement this for Ternary operator evaluation support 
+        pass
