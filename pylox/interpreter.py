@@ -94,5 +94,6 @@ class Interpreter:
         raise PyloxRuntimeError(operator, "Operands must be numbers.")
     
     def visit_Ternary_Expr(self, expr: Ternary) -> object:
-        # TODO: implement this for Ternary operator evaluation support 
-        pass
+        condition_eval: object = self.evaluate(expr.condition)
+        if self.is_truthy(condition_eval): return self.evaluate(expr.expr_if_true)
+        return self.evaluate(expr.expr_if_false)
