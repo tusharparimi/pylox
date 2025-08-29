@@ -8,7 +8,7 @@ class ErrorReporter:
 
     @classmethod
     def error(cls, message: str, **kwargs):
-         # used in scanner
+        # used in scanner
         if "line" in kwargs: 
             cls.report(kwargs["line"], "", message)
             return
