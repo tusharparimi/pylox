@@ -4,7 +4,8 @@ from pylox.tokens import Token
 from pylox.tokentype import TokenType
 
 class AstPrinter:
-    def print(self, expr: Expr): return expr.accept(self)
+    def print(self, expr: Expr) -> str: 
+        return expr.accept(self)
 
     def visit_Binary_Expr(self, binary: Binary) -> str:
         return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
@@ -26,7 +27,7 @@ class AstPrinter:
     def parenthesize(self, name: str, *args: Optional[Expr]) -> str: # TODO: just use expr_list no *args
         res: str = "(" + name
         for expr in args:
-            if expr is None: return "_" # blank for error expressions
+            if expr is None: return "_" # blank for error expressions (only to see partial syntax tree for error expressions)
             res += " "
             res += expr.accept(self)
         res += ")"

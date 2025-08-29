@@ -4,7 +4,7 @@ from pylox.scanner import Scanner
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
 from pylox.parser import Parser
-# from pylox.ast_printer import AstPrinter
+from pylox.ast_printer import AstPrinter
 from pylox.expr import Expr
 from pylox.interpreter import Interpreter
 
@@ -44,8 +44,13 @@ class Pylox:
         # for token in tokens: print(token)
         parser = Parser(tokens)
         expression: Expr = parser.parse()
+        # if ErrorReporter.had_error: return
+        if ErrorReporter.had_error: print("\nPartial Tree:")
+        else: print("\nTree:")
+        print(AstPrinter().print(expression))
+        
         if ErrorReporter.had_error: return
-        # print(AstPrinter().print(expression))
+        print("\nEval:")
         cls.interpreter.interpret(expression)
 
 

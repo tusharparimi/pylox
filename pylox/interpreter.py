@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Optional
 from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
@@ -13,7 +13,7 @@ class Interpreter:
         except PyloxRuntimeError as error: ErrorReporter.runtime_error(error)
 
     def stringify(self, obj: object) -> str:
-        if obj is None: return "nil"
+        if obj is None and not ErrorReporter.had_error: return "nil"
         if isinstance(obj, float):
             text: str = str(obj)
             if text[-2:] == ".0": text = text[:-2]
@@ -29,7 +29,9 @@ class Interpreter:
     def visit_Grouping_Expr(self, expr: Grouping) -> object:
         return self.evaluate(expr.expression)
     
-    def evaluate(self, expr: Expr) -> object: return expr.accept(self)
+    def evaluate(self, expr: Optional[Expr]) -> object:
+        if isinstance(expr, Expr): return expr.accept(self)
+        return None
 
     def visit_Unary_Expr(self, expr: Unary) -> object:
         right: object = self.evaluate(expr)
