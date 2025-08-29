@@ -1,4 +1,5 @@
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary
+from typing import cast
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -35,7 +36,7 @@ class Interpreter:
         match expr.operator.token_type:
             case TokenType.MINUS:
                 self.check_number_operand(expr.operator, right)
-                return -float(right)
+                return -float(cast(float, right)) # making mypy happy with cast
             case TokenType.BANG: return not self.is_truthy(right)
             case _: return None
 
@@ -50,31 +51,32 @@ class Interpreter:
         match expr.operator.token_type:
             case TokenType.MINUS: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) - float(right)
+                return float(cast(float, left)) - float(cast(float, right))
             case TokenType.PLUS:
                 if isinstance(left, float) and isinstance(right, float): return float(left) + float(right)
                 if isinstance(left, str) and isinstance(right, str): return str(left) + str(right)
                 raise PyloxRuntimeError(expr.operator, "Operands must be two numbers or two strings.")
             case TokenType.SLASH: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) / float(right)
+                return float(cast(float, left)) / float(cast(float, right))
             case TokenType.STAR: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) * float(right)
+                return float(cast(float, left)) * float(cast(float, right))
             case TokenType.GREATER:
                 self.check_number_operands(expr.operator, left, right)  
-                return float(left) > float(right)
+                return float(cast(float, left)) > float(cast(float, right))
             case TokenType.GREATER_EQUAL: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) >= float(right)
+                return float(cast(float, left)) >= float(cast(float, right))
             case TokenType.LESS: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) < float(right)
+                return float(cast(float, left)) < float(cast(float, right))
             case TokenType.LESS_EQUAL: 
                 self.check_number_operands(expr.operator, left, right)
-                return float(left) <= float(right)
+                return float(cast(float, left)) <= float(cast(float, right))
             case TokenType.BANG_EQUAL: return not self.is_equal(left, right) # can just use left == right here
             case TokenType.EQUAL_EQUAL: return self.is_equal(left, right) # can just use left != right here
+            case _: return None
 
     def is_equal(self, a: object, b: object) -> bool: # this func is not needed (in python) but reminds me ow a different lang like java would need it as lox hhandles equality differently from it
         if a is None and b is None: return True
