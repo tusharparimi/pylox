@@ -56,8 +56,9 @@ class Interpreter:
                 return float(cast(float, left)) - float(cast(float, right))
             case TokenType.PLUS:
                 if isinstance(left, float) and isinstance(right, float): return float(left) + float(right)
-                if isinstance(left, str) and isinstance(right, str): return str(left) + str(right)
-                raise PyloxRuntimeError(expr.operator, "Operands must be two numbers or two strings.")
+                if isinstance(left, str) or isinstance(right, str): 
+                    return (str(left)[:-2] if isinstance(left, float) else str(left)) + (str(right)[:-2] if isinstance(right, float) else str(right))
+                raise PyloxRuntimeError(expr.operator, "Operands must be numbers or strings.")
             case TokenType.SLASH: 
                 self.check_number_operands(expr.operator, left, right)
                 return float(cast(float, left)) / float(cast(float, right))
