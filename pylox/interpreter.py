@@ -61,6 +61,7 @@ class Interpreter:
                 raise PyloxRuntimeError(expr.operator, "Operands must be numbers or strings.")
             case TokenType.SLASH: 
                 self.check_number_operands(expr.operator, left, right)
+                if float(cast(float, right)) == 0: raise PyloxRuntimeError(expr.operator, "Cannot divide by zero.")
                 return float(cast(float, left)) / float(cast(float, right))
             case TokenType.STAR: 
                 self.check_number_operands(expr.operator, left, right)
