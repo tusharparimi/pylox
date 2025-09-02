@@ -4,13 +4,16 @@ from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
+from pylox.stmt import Stmt, Expression, Print
 
 class Interpreter:
-    def interpret(self, expression: Expr):
+    def interpret(self, statements: list[Stmt]):
         try:
-            value: object = self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements: self.execute(statement)
         except PyloxRuntimeError as error: ErrorReporter.runtime_error(error)
+
+    def execute(self, stmt: Stmt) -> None:
+        stmt.accept(self)
 
     def stringify(self, obj: object) -> str:
         if obj is None and not ErrorReporter.had_error: return "nil"
@@ -99,3 +102,11 @@ class Interpreter:
         condition_eval: object = self.evaluate(expr.condition)
         if self.is_truthy(condition_eval): return self.evaluate(expr.expr_if_true)
         return self.evaluate(expr.expr_if_false)
+    
+    def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
+    
+    def visit_Print_Stmt(self, stmt: Print) -> None:
+        value: object = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+    
+

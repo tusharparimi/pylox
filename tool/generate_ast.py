@@ -13,13 +13,23 @@ def main():
         "Unary      = operator: Token, right: Expr"
     ])
 
+def main1():
+    if len(sys.argv) != 2:
+        print("Usage: generate_ast.py [output_dir]", file=sys.stderr)
+        sys.exit(64)
+    output_dir: str = sys.argv[1]
+    define_ast(output_dir, "Stmt", [
+        "Expression = expression: Expr",
+        "Print      = expression: Expr"
+    ])
+
 def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
     try:
         path: str = output_dir + "/" + base_name.lower() + ".py"
         with open(path, mode="w", encoding="utf-8") as file:
             file.write("from __future__ import annotations")
             file.write("\n")
-            file.write("from abc import ABC, abstractmmethod")
+            file.write("from abc import ABC, abstractmethod")
             file.write("\n")
             file.write("from dataclasses import dataclass")
             file.write("\n")
@@ -39,7 +49,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("\n\n")
             file.write(f"class {base_name}(ABC):")
             file.write("\n\t")
-            file.write("@abstractmmethod")
+            file.write("@abstractmethod")
             file.write("\n\t")
             file.write("def accept(self, visitor: Visitor): ...")
 
@@ -67,4 +77,4 @@ def define_type(file: TextIO, base_name: str, class_name: str, fields: str) -> N
     file.write(f"return visitor.visit_{class_name}_{base_name}(self)")
 
 if __name__ == "__main__":
-    main()
+    main1()

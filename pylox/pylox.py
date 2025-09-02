@@ -7,6 +7,7 @@ from pylox.parser import Parser
 from pylox.ast_printer import AstPrinter
 from pylox.expr import Expr
 from pylox.interpreter import Interpreter
+from pylox.stmt import Stmt
 
 class Pylox:
     interpreter: Interpreter = Interpreter()
@@ -14,7 +15,7 @@ class Pylox:
     @staticmethod
     def main():
         if len(sys.argv) > 2: # 2 cause python always takes .py file name as first argument
-            print("Usage: pylox [script]")
+            print("Usage: pylox [script]") # TODO: make pylox work like this instead of running like a python script
             sys.exit(64)
         elif len(sys.argv) == 2: Pylox.run_file(sys.argv[1])
         else: Pylox.run_prompt()
@@ -43,15 +44,17 @@ class Pylox:
 
         # for token in tokens: print(token)
         parser = Parser(tokens)
-        expression: Expr = parser.parse()
+        statements: list[Stmt] = parser.parse()
+
+        # TODO: Print tree for each statement in pylox
         # if ErrorReporter.had_error: return
-        if ErrorReporter.had_error: print("\nPartial Tree:")
-        else: print("\nTree:")
-        print(AstPrinter().print(expression))
+        # if ErrorReporter.had_error: print("\nPartial Tree:")
+        # else: print("\nTree:")
+        # print(AstPrinter().print(expression))
         
         if ErrorReporter.had_error: return
         print("\nEval:")
-        cls.interpreter.interpret(expression)
+        cls.interpreter.interpret(statements)
 
 
 if __name__ == "__main__":

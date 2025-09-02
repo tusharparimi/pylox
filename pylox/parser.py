@@ -4,15 +4,34 @@ from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
+from pylox.stmt import Stmt, Print, Expression
 
 class Parser:
     def __init__(self, tokens: list[Token]):
         self._tokens: list[Token] = tokens
         self.current: int = 0
 
-    def parse(self):
-        try: return self.expression()
-        except Parser.ParseError: return None
+    def parse(self) -> list[Stmt]:
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.statement())
+        return statements
+        # try: return self.expression()
+        # except Parser.ParseError: return None
+
+    def statement(self) -> Stmt:
+        if self.match([TokenType.PRINT]): return self.print_statement()
+        return self.expression_statement()
+    
+    def print_statement(self) -> Stmt:
+        value: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+    
+    def expression_statement(self) -> Stmt:
+        expr: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Expression(expr)
 
     def expression(self) -> Expr:
         return self.comma()

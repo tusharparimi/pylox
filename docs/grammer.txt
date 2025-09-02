@@ -31,12 +31,17 @@ Enhanced grammer (taking into account precedence and associativity) (eliminates 
 
 Each rule here only matches expressions at its precedence level or higher.
 
+program         -> statement* EOF ;
+statement       -> expr_stmt | print_stmt ;
+expr_stmt       -> expression ";" ;
+print_stmt      -> "print" expression ";" ;
+
 expression      -> equality ;
 comma           -> equality ( "," equality )* ;
 ternary         -> equality ( "?" equality ":" ternary )* ;
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-term           → factor ( ( "-" | "+" ) factor )* ;
+equality        -> comparison ( ( "!=" | "==" ) comparison )* ;
+comparison      -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term            -> factor ( ( "-" | "+" ) factor )* ;
 factor          -> factor ("/" | "*") unary | unary ; # left recursive not good for parsing technique to be used
 factor          -> unary (("/" | "*") unary)* ;
 unary           -> ("-" | "!") unary | primary;
