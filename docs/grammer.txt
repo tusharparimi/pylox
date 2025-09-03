@@ -31,7 +31,9 @@ Enhanced grammer (taking into account precedence and associativity) (eliminates 
 
 Each rule here only matches expressions at its precedence level or higher.
 
-program         -> statement* EOF ;
+program         -> declaration* EOF ;
+declaration     -> var_decl | statement ;
+var_decl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
 statement       -> expr_stmt | print_stmt ;
 expr_stmt       -> expression ";" ;
 print_stmt      -> "print" expression ";" ;
@@ -46,4 +48,4 @@ factor          -> factor ("/" | "*") unary | unary ; # left recursive not good 
 factor          -> unary (("/" | "*") unary)* ;
 unary           -> ("-" | "!") unary | primary;
 unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | primary; # error production for binaryy expr without left operand
-primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;

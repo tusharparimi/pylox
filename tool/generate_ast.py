@@ -7,10 +7,11 @@ def main():
         sys.exit(64)
     output_dir: str = sys.argv[1]
     define_ast(output_dir, "Expr", [
-        "Binary     = left: Expr, operator: Token, right: Expr",
+        "Binary     = left: Optional[Expr], operator: Token, right: Optional[Expr]",
         "Grouping   = expression: Expr",
         "Literal    = value: object",
-        "Unary      = operator: Token, right: Expr"
+        "Unary      = operator: Token, right: Expr",
+        "Variable   = name: Token"
     ])
 
 def main1():
@@ -20,7 +21,8 @@ def main1():
     output_dir: str = sys.argv[1]
     define_ast(output_dir, "Stmt", [
         "Expression = expression: Expr",
-        "Print      = expression: Expr"
+        "Print      = expression: Expr",
+        "Var        = name: Token, initializer: Optional[Expr]"
     ])
 
 def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
@@ -33,9 +35,11 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("\n")
             file.write("from dataclasses import dataclass")
             file.write("\n")
-            file.write("from typing import Protocol")
+            file.write("from typing import Protocol, Optional")
             file.write("\n")
-            file.write("from tokens import Token")
+            file.write("from pylox.tokens import Token")
+            file.write("\n")
+            file.write("from pylox.expr import Expr")
             file.write("\n\n")
 
             file.write("class Visitor(Protocol):")
@@ -77,4 +81,5 @@ def define_type(file: TextIO, base_name: str, class_name: str, fields: str) -> N
     file.write(f"return visitor.visit_{class_name}_{base_name}(self)")
 
 if __name__ == "__main__":
+    main()
     main1()
