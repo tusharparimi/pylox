@@ -3,13 +3,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol, Optional
 from pylox.tokens import Token
-from pylox.expr import Expr
 
 class Visitor(Protocol):
 	def visit_Binary_Expr(self, binary: Binary): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
 	def visit_Unary_Expr(self, unary: Unary): ...
+	def visit_Ternary_Expr(self, ternary: Ternary): ...
 	def visit_Variable_Expr(self, variable: Variable): ...
 
 class Expr(ABC):
@@ -46,6 +46,17 @@ class Unary(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Unary_Expr(self)
+
+@dataclass(frozen=True)
+class Ternary(Expr):
+	condition: Expr
+	operator1: Token
+	expr_if_true: Expr
+	operator2: Token
+	expr_if_false: Expr
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Ternary_Expr(self)
 
 @dataclass(frozen=True)
 class Variable(Expr):

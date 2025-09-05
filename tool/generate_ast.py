@@ -11,6 +11,7 @@ def main():
         "Grouping   = expression: Expr",
         "Literal    = value: object",
         "Unary      = operator: Token, right: Expr",
+        "Ternary    = condition: Expr, operator1: Token, expr_if_true: Expr, operator2: Token, expr_if_false: Expr",
         "Variable   = name: Token"
     ])
 
@@ -38,8 +39,6 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("from typing import Protocol, Optional")
             file.write("\n")
             file.write("from pylox.tokens import Token")
-            file.write("\n")
-            file.write("from pylox.expr import Expr")
             file.write("\n\n")
 
             file.write("class Visitor(Protocol):")
