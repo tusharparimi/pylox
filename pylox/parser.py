@@ -22,6 +22,7 @@ class Parser:
     def declaration(self) -> Stmt:
         try: 
             if self.match([TokenType.VAR]): return self.var_declaration()
+            return self.statement()
         except Parser.ParseError:
             self.synchronize()
             return
