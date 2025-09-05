@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var
@@ -14,22 +14,22 @@ class Parser:
     def parse(self) -> list[Stmt]:
         statements = []
         while not self.is_at_end():
-            statements.append(self.declaration())
+            stmt = self.declaration()
+            if stmt is not None: statements.append(stmt)
         return statements
-        # try: return self.expression()
-        # except Parser.ParseError: return None
 
-    def declaration(self) -> Stmt:
+    def declaration(self) -> Optional[Stmt]:
         try: 
             if self.match([TokenType.VAR]): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
-            return
+            return None
     
     def var_declaration(self) -> Stmt:
-        name: Token = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
-        initializer: Expr = None
+        name: Optional[Token] = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        assert name is not None
+        initializer: Optional[Expr] = None
         if self.match([TokenType.EQUAL]): initializer = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return Var(name, initializer)
@@ -116,7 +116,7 @@ class Parser:
         return self.ParseError()
     
     def synchronize(self):
-        self.advance()
+        # self.advance()
         while not self.is_at_end():
             if self.previous().token_type == TokenType.SEMICOLON: return
             match self.peek().token_type:
@@ -186,7 +186,7 @@ class Parser:
         if self.match([TokenType.TRUE]): return Literal(True)
         if self.match([TokenType.NIL]): return Literal(None)
         if self.match([TokenType.NUMBER, TokenType.STRING]): return Literal(self.previous().literal)
-        if self.match([TokenType.IDENTIFIER]): return Var(self.previous())
+        if self.match([TokenType.IDENTIFIER]): return Variable(self.previous())
         if self.match([TokenType.LEFT_PAREN]):
             expr: Expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")

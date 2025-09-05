@@ -1,18 +1,24 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print
+from pylox.stmt import Stmt, Expression, Print, Var
+from pylox.environment import Environment
 
 class Interpreter:
+    __environment: Environment = Environment()
+
     def interpret(self, statements: list[Stmt]):
         try:
-            for statement in statements: self.execute(statement)
+            for statement in statements: 
+                assert statement is not None
+                self.execute(statement)
         except PyloxRuntimeError as error: ErrorReporter.runtime_error(error)
 
     def execute(self, stmt: Stmt) -> None:
+        # if stmt is None: return
         stmt.accept(self)
 
     def stringify(self, obj: object) -> str:
@@ -103,10 +109,17 @@ class Interpreter:
         if self.is_truthy(condition_eval): return self.evaluate(expr.expr_if_true)
         return self.evaluate(expr.expr_if_false)
     
+    def visit_Variable_Expr(self, expr: Variable) -> object: return self.__environment.get(expr.name)
+    
     def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
     
     def visit_Print_Stmt(self, stmt: Print) -> None:
         value: object = self.evaluate(stmt.expression)
         print(self.stringify(value))
+
+    def visit_Var_Stmt(self, stmt: Var) -> None:
+        value: object = None
+        if stmt.initializer is not None: value = self.evaluate(stmt.initializer)
+        self.__environment.define(stmt.name.lexeme, value)
     
 
