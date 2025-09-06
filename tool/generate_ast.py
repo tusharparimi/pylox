@@ -7,6 +7,7 @@ def main():
         sys.exit(64)
     output_dir: str = sys.argv[1]
     define_ast(output_dir, "Expr", [
+        "Assign     = name: Token, value: Expr",
         "Binary     = left: Optional[Expr], operator: Token, right: Optional[Expr]",
         "Grouping   = expression: Expr",
         "Literal    = value: object",

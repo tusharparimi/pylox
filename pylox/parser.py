@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var
@@ -47,15 +47,26 @@ class Parser:
         expr: Expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Expression(expr)
+    
+    def assignment(self) -> Expr:
+        expr: Expr = self.ternary()
+        if self.match([TokenType.EQUAL]):
+            equals: Token = self.previous()
+            value: Expr = self.assignment()
+            if isinstance(expr, Variable): 
+                name: Token = expr.name
+                return Assign(name, value)
+            self.error(equals, "Invalid assignment target.")
+        return expr
 
     def expression(self) -> Expr:
         return self.comma()
     
     def comma(self) -> Expr:
-        expr: Expr = self.ternary()
+        expr: Expr = self.assignment()
         while self.match([TokenType.COMMA]):
             operator: Token = self.previous()
-            right: Expr = self.ternary()
+            right: Expr = self.assignment()
             expr = Binary(expr, operator, right)
         return expr
     

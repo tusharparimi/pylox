@@ -38,8 +38,9 @@ statement       -> expr_stmt | print_stmt ;
 expr_stmt       -> expression ";" ;
 print_stmt      -> "print" expression ";" ;
 
-expression      -> equality ;
-comma           -> equality ( "," equality )* ;
+expression      -> comma ;
+comma           -> assignmment ( "," assignmment )* ;
+assignmment     -> IDENTIFIER "=" assignmment | ternary ;
 ternary         -> equality ( "?" equality ":" ternary )* ;
 equality        -> comparison ( ( "!=" | "==" ) comparison )* ;
 comparison      -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;

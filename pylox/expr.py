@@ -5,6 +5,7 @@ from typing import Protocol, Optional
 from pylox.tokens import Token
 
 class Visitor(Protocol):
+	def visit_Assign_Expr(self, assign: Assign): ...
 	def visit_Binary_Expr(self, binary: Binary): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
@@ -15,6 +16,14 @@ class Visitor(Protocol):
 class Expr(ABC):
 	@abstractmethod
 	def accept(self, visitor: Visitor): ...
+
+@dataclass(frozen=True)
+class Assign(Expr):
+	name: Token
+	value: Expr
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Assign_Expr(self)
 
 @dataclass(frozen=True)
 class Binary(Expr):

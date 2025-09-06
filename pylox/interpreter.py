@@ -1,5 +1,5 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -121,5 +121,10 @@ class Interpreter:
         value: object = None
         if stmt.initializer is not None: value = self.evaluate(stmt.initializer)
         self.__environment.define(stmt.name.lexeme, value)
+
+    def visit_Assign_Expr(self, expr: Assign) -> object:
+        value: object = self.evaluate(expr.value)
+        self.__environment.assign(expr.name, value)
+        return value # assignment is an expression that can be nested inside other expressions
     
 
