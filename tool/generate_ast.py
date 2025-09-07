@@ -1,7 +1,7 @@
 import sys
 from typing import TextIO
 
-def main():
+def main_expr():
     if len(sys.argv) != 2:
         print("Usage: generate_ast.py [output_dir]", file=sys.stderr)
         sys.exit(64)
@@ -16,7 +16,7 @@ def main():
         "Variable   = name: Token"
     ])
 
-def main1():
+def main_stmt():
     if len(sys.argv) != 2:
         print("Usage: generate_ast.py [output_dir]", file=sys.stderr)
         sys.exit(64)
@@ -25,7 +25,7 @@ def main1():
         "Block      = statements: list[Stmt]",
         "Expression = expression: Expr",
         "Print      = expression: Expr",
-        "Var        = name: Token, initializer: Optional[Expr]"
+        "Var        = name: Token, initializer: Expr | UnInitValue"
     ])
 
 def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
@@ -41,7 +41,13 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("from typing import Protocol, Optional")
             file.write("\n")
             file.write("from pylox.tokens import Token")
+            if sys._getframe(1).f_code.co_name == "main_stmt":
+                file.write("\n")
+                file.write("from pylox.expr import Expr")
+                file.write("\n")
+                file.write("from pylox.environment import UnInitValue")
             file.write("\n\n")
+
 
             file.write("class Visitor(Protocol):")
             for type in types:
@@ -82,5 +88,5 @@ def define_type(file: TextIO, base_name: str, class_name: str, fields: str) -> N
     file.write(f"return visitor.visit_{class_name}_{base_name}(self)")
 
 if __name__ == "__main__":
-    main()
-    main1()
+    main_expr()
+    main_stmt()

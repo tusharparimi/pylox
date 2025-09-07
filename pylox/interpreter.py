@@ -5,7 +5,7 @@ from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Expression, Print, Var, Block
-from pylox.environment import Environment
+from pylox.environment import Environment, UnInitValue
 
 class Interpreter:
     __environment: Environment = Environment()
@@ -128,8 +128,8 @@ class Interpreter:
         print(self.stringify(value))
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
-        value: object = None
-        if stmt.initializer is not None: value = self.evaluate(stmt.initializer)
+        value: object | UnInitValue = UnInitValue()
+        if not isinstance(stmt.initializer, UnInitValue): value = self.evaluate(stmt.initializer)
         self.__environment.define(stmt.name.lexeme, value)
 
     def visit_Assign_Expr(self, expr: Assign) -> object:

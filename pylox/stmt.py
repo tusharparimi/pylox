@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol, Optional
 from pylox.tokens import Token
 from pylox.expr import Expr
+from pylox.environment import UnInitValue
 
 class Visitor(Protocol):
 	def visit_Block_Stmt(self, block: Block): ...
@@ -39,7 +40,7 @@ class Print(Stmt):
 @dataclass(frozen=True)
 class Var(Stmt):
 	name: Token
-	initializer: Optional[Expr]
+	initializer: Expr | UnInitValue
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Var_Stmt(self)

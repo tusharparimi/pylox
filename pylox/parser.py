@@ -5,6 +5,7 @@ from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block
+from pylox.environment import UnInitValue
 
 class Parser:
     def __init__(self, tokens: list[Token]):
@@ -32,6 +33,7 @@ class Parser:
         initializer: Optional[Expr] = None
         if self.match([TokenType.EQUAL]): initializer = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        if initializer is None: return Var(name, UnInitValue())
         return Var(name, initializer)
 
     def statement(self) -> Stmt:
