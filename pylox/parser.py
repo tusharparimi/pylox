@@ -4,7 +4,7 @@ from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Print, Expression, Var
+from pylox.stmt import Stmt, Print, Expression, Var, Block
 
 class Parser:
     def __init__(self, tokens: list[Token]):
@@ -36,7 +36,14 @@ class Parser:
 
     def statement(self) -> Stmt:
         if self.match([TokenType.PRINT]): return self.print_statement()
+        if self.match([TokenType.LEFT_BRACE]): return Block(self.block())
         return self.expression_statement()
+    
+    def block(self) -> list[Stmt]:
+        statements: list[Stmt] = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end(): statements.append(self.declaration())
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
     
     def print_statement(self) -> Stmt:
         value: Expr = self.expression()

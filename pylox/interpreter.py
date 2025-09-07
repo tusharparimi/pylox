@@ -4,7 +4,7 @@ from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var
+from pylox.stmt import Stmt, Expression, Print, Var, Block
 from pylox.environment import Environment
 
 class Interpreter:
@@ -20,6 +20,16 @@ class Interpreter:
     def execute(self, stmt: Stmt) -> None:
         # if stmt is None: return
         stmt.accept(self)
+
+    def execute_block(self, statements: list[Stmt], environment: Environment) -> None:
+        previous: Environment = self.__environment
+        try:
+            self.__environment = environment
+            for statement in statements: self.execute(statement)
+        finally: self.__environment = previous
+
+    def visit_Block_Stmt(self, stmt: Block) -> None:
+        self.execute_block(stmt.statements, Environment(self.__environment))
 
     def stringify(self, obj: object) -> str:
         if obj is None and not ErrorReporter.had_error: return "nil"

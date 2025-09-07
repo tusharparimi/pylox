@@ -22,6 +22,7 @@ def main1():
         sys.exit(64)
     output_dir: str = sys.argv[1]
     define_ast(output_dir, "Stmt", [
+        "Block      = statements: list[Stmt]",
         "Expression = expression: Expr",
         "Print      = expression: Expr",
         "Var        = name: Token, initializer: Optional[Expr]"

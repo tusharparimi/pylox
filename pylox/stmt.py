@@ -6,6 +6,7 @@ from pylox.tokens import Token
 from pylox.expr import Expr
 
 class Visitor(Protocol):
+	def visit_Block_Stmt(self, block: Block): ...
 	def visit_Expression_Stmt(self, expression: Expression): ...
 	def visit_Print_Stmt(self, print: Print): ...
 	def visit_Var_Stmt(self, var: Var): ...
@@ -13,6 +14,13 @@ class Visitor(Protocol):
 class Stmt(ABC):
 	@abstractmethod
 	def accept(self, visitor: Visitor): ...
+
+@dataclass(frozen=True)
+class Block(Stmt):
+	statements: list[Stmt]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Block_Stmt(self)
 
 @dataclass(frozen=True)
 class Expression(Stmt):
