@@ -47,8 +47,8 @@ class Pylox:
         tokens: list[Token] = scanner.scan_tokens()
         parser = Parser(tokens)
 
-        if Pylox.repl and tokens[-2].token_type is not TokenType.SEMICOLON:
-            expression: Expr = parser.expression()
+        if Pylox.repl and tokens[-2].token_type is not TokenType.SEMICOLON and tokens[0].token_type not in [TokenType.PRINT, TokenType.VAR]:
+            expression: Expr | None = parser.expression()
             if ErrorReporter.had_error: return
             print("\nEval:")
             print(cls.interpreter.stringify(cls.interpreter.evaluate(expression)))
