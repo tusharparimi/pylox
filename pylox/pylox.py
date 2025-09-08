@@ -2,6 +2,7 @@
 import sys
 from pylox.scanner import Scanner
 from pylox.tokens import Token
+from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.parser import Parser
 from pylox.ast_printer import AstPrinter
@@ -11,6 +12,7 @@ from pylox.stmt import Stmt
 
 class Pylox:
     interpreter: Interpreter = Interpreter()
+    repl: bool = False
 
     @staticmethod
     def main():
@@ -18,7 +20,9 @@ class Pylox:
             print("Usage: pylox [script]") # TODO: make pylox work like this instead of running like a python script
             sys.exit(64)
         elif len(sys.argv) == 2: Pylox.run_file(sys.argv[1])
-        else: Pylox.run_prompt()
+        else: 
+            Pylox.repl = True
+            Pylox.run_prompt()
 
     @staticmethod
     def run_file(path: str): 
@@ -41,9 +45,15 @@ class Pylox:
     def run(cls, src: str):
         scanner = Scanner(src)
         tokens: list[Token] = scanner.scan_tokens()
-
-        # for token in tokens: print(token)
         parser = Parser(tokens)
+
+        if Pylox.repl and tokens[-2].token_type is not TokenType.SEMICOLON:
+            expression: Expr = parser.expression()
+            if ErrorReporter.had_error: return
+            print("\nEval:")
+            print(cls.interpreter.stringify(cls.interpreter.evaluate(expression)))
+            return
+
         statements: list[Stmt] = parser.parse()
 
         # TODO: Print tree for each statement in pylox
