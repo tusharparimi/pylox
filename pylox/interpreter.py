@@ -4,7 +4,7 @@ from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var, Block
+from pylox.stmt import Stmt, Expression, Print, Var, Block, If
 from pylox.environment import Environment, UnInitValue
 
 class Interpreter:
@@ -21,11 +21,12 @@ class Interpreter:
         # if stmt is None: return
         stmt.accept(self)
 
-    def execute_block(self, statements: list[Stmt], environment: Environment) -> None:
+    def execute_block(self, statements: list[Stmt | None], environment: Environment) -> None:
         previous: Environment = self.__environment
         try:
             self.__environment = environment
-            for statement in statements: self.execute(statement)
+            for statement in statements: 
+                if statement is not None: self.execute(statement)
         finally: self.__environment = previous
 
     def visit_Block_Stmt(self, stmt: Block) -> None:
@@ -122,6 +123,10 @@ class Interpreter:
     def visit_Variable_Expr(self, expr: Variable) -> object: return self.__environment.get(expr.name)
     
     def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
+
+    def visit_If_Stmt(self, stmt: If) -> None:
+        if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None: self.execute(stmt.else_branch)
     
     def visit_Print_Stmt(self, stmt: Print) -> None:
         value: object = self.evaluate(stmt.expression)

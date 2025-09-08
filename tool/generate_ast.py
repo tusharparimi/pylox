@@ -22,8 +22,9 @@ def main_stmt():
         sys.exit(64)
     output_dir: str = sys.argv[1]
     define_ast(output_dir, "Stmt", [
-        "Block      = statements: list[Stmt]",
+        "Block      = statements: list[Stmt | None]",
         "Expression = expression: Expr",
+        "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
         "Print      = expression: Expr",
         "Var        = name: Token, initializer: Expr | UnInitValue"
     ])
@@ -55,7 +56,8 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
                 # file.write("\n\t")
                 # file.write("@staticmethod")
                 file.write("\n\t")
-                file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
+                if type_name == "If": file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
+                else: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
 
             file.write("\n\n")
             file.write(f"class {base_name}(ABC):")
