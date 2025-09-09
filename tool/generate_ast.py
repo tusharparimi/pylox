@@ -11,6 +11,7 @@ def main_expr():
         "Binary     = left: Optional[Expr], operator: Token, right: Optional[Expr]",
         "Grouping   = expression: Expr",
         "Literal    = value: object",
+        "Logical    = left: Expr, operator: Token, right: Expr",
         "Unary      = operator: Token, right: Expr",
         "Ternary    = condition: Expr, operator1: Token, expr_if_true: Expr, operator2: Token, expr_if_false: Expr",
         "Variable   = name: Token"

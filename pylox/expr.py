@@ -9,6 +9,7 @@ class Visitor(Protocol):
 	def visit_Binary_Expr(self, binary: Binary): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
+	def visit_Logical_Expr(self, logical: Logical): ...
 	def visit_Unary_Expr(self, unary: Unary): ...
 	def visit_Ternary_Expr(self, ternary: Ternary): ...
 	def visit_Variable_Expr(self, variable: Variable): ...
@@ -47,6 +48,15 @@ class Literal(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Literal_Expr(self)
+
+@dataclass(frozen=True)
+class Logical(Expr):
+	left: Expr
+	operator: Token
+	right: Expr
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Logical_Expr(self)
 
 @dataclass(frozen=True)
 class Unary(Expr):

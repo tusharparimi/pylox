@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block, If
@@ -68,7 +68,7 @@ class Parser:
         return Expression(expr)
     
     def assignment(self) -> Expr:
-        expr: Expr = self.ternary()
+        expr: Expr = self.logical_or()
         if self.match([TokenType.EQUAL]):
             equals: Token = self.previous()
             value: Expr = self.assignment()
@@ -76,6 +76,22 @@ class Parser:
                 name: Token = expr.name
                 return Assign(name, value)
             self.error(equals, "Invalid assignment target.")
+        return expr
+    
+    def logical_or(self) -> Expr:
+        expr: Expr = self.logical_and()
+        while self.match([TokenType.OR]):
+            operator: Token = self.previous()
+            right: Expr = self.logical_and()
+            expr = Logical(expr, operator, right)
+        return expr
+    
+    def logical_and(self) -> Expr:
+        expr: Expr = self.ternary()
+        while self.match([TokenType.AND]):
+            operator: Token = self.previous()
+            right: Expr = self.ternary()
+            expr = Logical(expr, operator, right)
         return expr
 
     def expression(self) -> Expr:

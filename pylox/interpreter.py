@@ -1,5 +1,5 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -45,6 +45,12 @@ class Interpreter:
 
     def visit_Literal_Expr(self, expr: Literal) -> object:
         return expr.value
+    
+    def visit_Logical_Expr(self, expr: Logical) -> object:
+        left: object = self.evaluate(expr.left)
+        if expr.operator.token_type == TokenType.OR and self.is_truthy(left): return left
+        if expr.operator.token_type == TokenType.AND and not self.is_truthy(left): return left
+        return self.evaluate(expr.right) # a logic operator merely guarantees it will return a value with appropriate truthiness
     
     def visit_Grouping_Expr(self, expr: Grouping) -> object:
         return self.evaluate(expr.expression)
