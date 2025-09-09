@@ -12,6 +12,7 @@ class Visitor(Protocol):
 	def visit_If_Stmt(self, if_arg: If): ...
 	def visit_Print_Stmt(self, print: Print): ...
 	def visit_Var_Stmt(self, var: Var): ...
+	def visit_While_Stmt(self, while_arg: While): ...
 
 class Stmt(ABC):
 	@abstractmethod
@@ -54,3 +55,11 @@ class Var(Stmt):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Var_Stmt(self)
+
+@dataclass(frozen=True)
+class While(Stmt):
+	condition: Expr
+	body: Stmt
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_While_Stmt(self)

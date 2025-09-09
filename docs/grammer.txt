@@ -34,9 +34,9 @@ Each rule here only matches expressions at its precedence level or higher.
 program         -> declaration* EOF ;
 declaration     -> var_decl | statement ;
 var_decl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
-statement       -> expr_stmt | print_stmt | block | if_stmt;
-if_stmt         -> "if" "(" expression ")" statement
-                   ( "else" statement )? ;
+statement       -> expr_stmt | print_stmt | block | if_stmt | while_stmt ;
+while_stmt      -> "while" "(" expression ")" statement ;
+if_stmt         -> "if" "(" expression ")" statement ( "else" statement )? ;
 block           -> "{" declaration* "}" ;
 expr_stmt       -> expression ";" ;
 print_stmt      -> "print" expression ";" ;

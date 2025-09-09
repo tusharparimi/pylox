@@ -27,7 +27,8 @@ def main_stmt():
         "Expression = expression: Expr",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
         "Print      = expression: Expr",
-        "Var        = name: Token, initializer: Expr | UnInitValue"
+        "Var        = name: Token, initializer: Expr | UnInitValue",
+        "While      = condition: Expr, body: Stmt"
     ])
 
 def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
@@ -55,7 +56,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             for type in types:
                 type_name = type.split("=")[0].strip()
                 file.write("\n\t")
-                if type_name == "If": file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
+                if type_name in ["If", "While"]: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
                 else: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
 
             file.write("\n\n")

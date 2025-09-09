@@ -4,7 +4,7 @@ from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Print, Expression, Var, Block, If
+from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While
 from pylox.environment import UnInitValue
 
 class Parser:
@@ -39,8 +39,16 @@ class Parser:
     def statement(self) -> Stmt:
         if self.match([TokenType.IF]): return self.if_statement()
         if self.match([TokenType.PRINT]): return self.print_statement()
+        if self.match([TokenType.WHILE]): return self.while_statement()
         if self.match([TokenType.LEFT_BRACE]): return Block(self.block())
         return self.expression_statement()
+    
+    def while_statement(self) -> Stmt:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition: Expr = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'while'.")
+        body: Stmt = self.statement()
+        return While(condition, body)
     
     def if_statement(self) -> Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")

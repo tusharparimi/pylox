@@ -4,7 +4,7 @@ from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var, Block, If
+from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While
 from pylox.environment import Environment, UnInitValue
 
 class Interpreter:
@@ -142,6 +142,9 @@ class Interpreter:
         value: object | UnInitValue = UnInitValue()
         if not isinstance(stmt.initializer, UnInitValue): value = self.evaluate(stmt.initializer)
         self.__environment.define(stmt.name.lexeme, value)
+
+    def visit_While_Stmt(self, stmt: While) -> None:
+        while self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.body)
 
     def visit_Assign_Expr(self, expr: Assign) -> object:
         value: object = self.evaluate(expr.value)
