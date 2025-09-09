@@ -54,8 +54,6 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("class Visitor(Protocol):")
             for type in types:
                 type_name = type.split("=")[0].strip()
-                # file.write("\n\t")
-                # file.write("@staticmethod")
                 file.write("\n\t")
                 if type_name == "If": file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
                 else: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
