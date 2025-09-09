@@ -43,7 +43,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("from typing import Protocol, Optional")
             file.write("\n")
             file.write("from pylox.tokens import Token")
-            if sys._getframe(1).f_code.co_name == "main_stmt":
+            if sys._getframe(1).f_code.co_name == "main_stmt": # checksif define_ast() was called by main_stmt() 
                 file.write("\n")
                 file.write("from pylox.expr import Expr")
                 file.write("\n")
