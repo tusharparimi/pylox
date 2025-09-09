@@ -17,6 +17,6 @@ class TokenType(Enum):
 
     # Keywords.
     AND = auto(); CLASS = auto(); ELSE = auto(); FALSE = auto(); FUN = auto(); FOR = auto(); IF = auto(); NIL = auto(); OR = auto()
-    PRINT = auto(); RETURN = auto(); SUPER = auto(); THIS = auto(); TRUE = auto(); VAR = auto(); WHILE = auto()
+    PRINT = auto(); RETURN = auto(); SUPER = auto(); THIS = auto(); TRUE = auto(); VAR = auto(); WHILE = auto(); BREAK = auto()
 
     EOF = auto()

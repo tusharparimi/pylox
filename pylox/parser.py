@@ -4,13 +4,14 @@ from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While
+from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break
 from pylox.environment import UnInitValue
 
 class Parser:
     def __init__(self, tokens: list[Token]):
         self._tokens: list[Token] = tokens
         self.current: int = 0
+        self.in_loop: bool = False
 
     def parse(self) -> list[Stmt]:
         statements = []
@@ -37,6 +38,7 @@ class Parser:
         return Var(name, initializer)
 
     def statement(self) -> Stmt:
+        if self.match([TokenType.BREAK]): return self.break_statement()
         if self.match([TokenType.FOR]): return self.for_statement()
         if self.match([TokenType.IF]): return self.if_statement()
         if self.match([TokenType.PRINT]): return self.print_statement()
@@ -44,7 +46,13 @@ class Parser:
         if self.match([TokenType.LEFT_BRACE]): return Block(self.block())
         return self.expression_statement()
     
-    def for_statement(self) -> Stmt: # desugaring into nodes the interpreter already knows
+    def break_statement(self) -> Stmt:
+        self.consume(TokenType.SEMICOLON, "Expect ';' after 'break'.")
+        if not self.in_loop: raise self.error(self.peek(), "'break' only allowed inside loops.")
+        return Break()
+    
+    def for_statement(self) -> Stmt: # desugaring into nodes the interpreter already 
+        self.in_loop = True
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
         initializer: Stmt = None
         if self.match([TokenType.SEMICOLON]): pass
@@ -61,13 +69,16 @@ class Parser:
         if condition is None: condition = Literal(True)
         body = While(condition, body)
         if initializer is not None: body = Block([initializer, body])
+        self.in_loop = False
         return body
     
     def while_statement(self) -> Stmt:
+        self.in_loop = True
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
         condition: Expr = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'while'.")
         body: Stmt = self.statement()
+        self.in_loop = False
         return While(condition, body)
     
     def if_statement(self) -> Stmt:

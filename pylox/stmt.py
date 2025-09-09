@@ -7,6 +7,7 @@ from pylox.expr import Expr
 from pylox.environment import UnInitValue
 
 class Visitor(Protocol):
+	def visit_Break_Stmt(self, break_arg: Break): ...
 	def visit_Block_Stmt(self, block: Block): ...
 	def visit_Expression_Stmt(self, expression: Expression): ...
 	def visit_If_Stmt(self, if_arg: If): ...
@@ -17,6 +18,13 @@ class Visitor(Protocol):
 class Stmt(ABC):
 	@abstractmethod
 	def accept(self, visitor: Visitor): ...
+
+@dataclass(frozen=True)
+class Break(Stmt):
+	
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Break_Stmt(self)
 
 @dataclass(frozen=True)
 class Block(Stmt):

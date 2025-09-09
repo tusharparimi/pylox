@@ -2,9 +2,9 @@ from typing import cast, Optional
 from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
-from pylox.runtime_error import PyloxRuntimeError
+from pylox.runtime_error import PyloxRuntimeError, BreakSignal
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While
+from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break
 from pylox.environment import Environment, UnInitValue
 
 class Interpreter:
@@ -144,7 +144,12 @@ class Interpreter:
         self.__environment.define(stmt.name.lexeme, value)
 
     def visit_While_Stmt(self, stmt: While) -> None:
-        while self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.body)
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            try: self.execute(stmt.body)
+            except BreakSignal: break # TODO: implement pylox break withhout using python break
+
+    def visit_Break_Stmt(self, stmt: Break) -> None:
+        raise BreakSignal
 
     def visit_Assign_Expr(self, expr: Assign) -> object:
         value: object = self.evaluate(expr.value)
