@@ -63,12 +63,7 @@ class Scanner:
             case ';': self.add_token(TokenType.SEMICOLON)
             case "?": self.add_token(TokenType.QUESTION)
             case ":": self.add_token(TokenType.COLON)
-            case '*':
-                if self.multi_line_comment_count > 0 and self.match('/'): 
-                    self.advance()
-                    self.multi_line_comment_count -= 1
-                elif self.multi_line_comment_count > 0: self.advance()
-                else: self.add_token(TokenType.STAR)
+            case '*': self.add_token(TokenType.STAR)
 
             case '!': self.add_token(TokenType.BANG_EQUAL if self.match('=') else TokenType.BANG)
             case '=': self.add_token(TokenType.EQUAL_EQUAL if self.match('=') else TokenType.EQUAL)
@@ -79,8 +74,14 @@ class Scanner:
                 if self.match('/'): # single line comments start
                     while (self.peek() != '\n' and not self.is_at_end()): self.advance()
                 elif self.match('*'): # multi line comments start
-                    while ((self.peek() != '*' and self.peek() != '/') and not self.is_at_end()): self.advance()
                     self.multi_line_comment_count += 1
+                    while (self.peek() != '/' and not self.is_at_end()): 
+                        if self.multi_line_comment_count == 0: break
+                        if self.peek() == '*' and self.peek_next() == '/':
+                            self.advance()
+                            self.advance()
+                            self.multi_line_comment_count -= 1
+                        self.advance()
                 else: self.add_token(TokenType.SLASH)
 
             case ' ': pass
