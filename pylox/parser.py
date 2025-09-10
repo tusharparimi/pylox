@@ -54,14 +54,14 @@ class Parser:
     def for_statement(self) -> Stmt: # desugaring into nodes the interpreter already 
         self.in_loop = True
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        initializer: Stmt = None
+        initializer: Optional[Stmt] = None
         if self.match([TokenType.SEMICOLON]): pass
         elif self.match([TokenType.VAR]): initializer = self.var_declaration()
         else: initializer = self.expression_statement()
-        condition: Expr = None
+        condition: Optional[Expr] = None
         if not self.check(TokenType.SEMICOLON): condition = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
-        increment: Expr = None
+        increment: Optional[Expr] = None
         if not self.check(TokenType.RIGHT_PAREN): increment = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
         body: Stmt = self.statement()
