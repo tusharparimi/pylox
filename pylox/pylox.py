@@ -56,13 +56,9 @@ class Pylox:
 
         statements: list[Stmt] = parser.parse()
 
-        # TODO: Print tree for each statement in pylox
-        # if ErrorReporter.had_error: return
-        # if ErrorReporter.had_error: print("\nPartial Tree:")
-        # else: print("\nTree:")
-        # print(AstPrinter().print(expression))
-        
         if ErrorReporter.had_error: return
+        print(AstPrinter().print(statements))
+        
         print("\nEval:")
         cls.interpreter.interpret(statements)
 
