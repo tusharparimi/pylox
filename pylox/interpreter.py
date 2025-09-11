@@ -60,7 +60,7 @@ class Interpreter:
         return None
 
     def visit_Unary_Expr(self, expr: Unary) -> object:
-        right: object = self.evaluate(expr)
+        right: object = self.evaluate(expr.right)
         match expr.operator.token_type:
             case TokenType.MINUS:
                 self.check_number_operand(expr.operator, right)
