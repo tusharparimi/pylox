@@ -1,5 +1,5 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call, Lambda
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -180,4 +180,7 @@ class Interpreter:
         self.__environment.assign(expr.name, value)
         return value # assignment is an expression that can be nested inside other expressions
     
+    def visit_Lambda_Expr(self, expr: Lambda) -> LoxFunction:
+        function: LoxFunction = LoxFunction(expr, self.__environment)
+        return function
 

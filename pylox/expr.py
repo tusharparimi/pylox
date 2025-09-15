@@ -3,11 +3,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol, Optional
 from pylox.tokens import Token
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from pylox.stmt import Stmt
 
 class Visitor(Protocol):
 	def visit_Assign_Expr(self, assign: Assign): ...
 	def visit_Binary_Expr(self, binary: Binary): ...
 	def visit_Call_Expr(self, call: Call): ...
+	def visit_Lambda_Expr(self, lambda_arg: Lambda): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
 	def visit_Logical_Expr(self, logical: Logical): ...
@@ -44,6 +49,14 @@ class Call(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Call_Expr(self)
+
+@dataclass(frozen=True)
+class Lambda(Expr):
+	params: list[Token]
+	body: list[Stmt | None]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Lambda_Expr(self)
 
 @dataclass(frozen=True)
 class Grouping(Expr):

@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pylox.lox_callable import LoxCallable
 from pylox.stmt import Function
+from pylox.expr import Lambda
 from pylox.control_flow_signal import ReturnSignal
 from pylox.environment import Environment
 from typing import TYPE_CHECKING
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class LoxFunction(LoxCallable):
-    declaration: Function
+    declaration: Function | Lambda
     closure: Environment
 
     def call(self, interpreter: Interpreter, arguments: list[object]) -> object:

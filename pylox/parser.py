@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return
@@ -29,7 +29,10 @@ class Parser:
             self.synchronize()
             return None
         
-    def function(self, kind: str) -> Function:
+    def function(self, kind: str) -> Function | Expression:
+        if not self.check(TokenType.IDENTIFIER):
+            self.current -= 1
+            return self.expression_statement()
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
         self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
         parameters: list[Token] = []
@@ -317,6 +320,21 @@ class Parser:
         if self.match([TokenType.NIL]): return Literal(None)
         if self.match([TokenType.NUMBER, TokenType.STRING]): return Literal(self.previous().literal)
         if self.match([TokenType.IDENTIFIER]): return Variable(self.previous())
+        if self.match([TokenType.FUN]):
+            kind: str = "lambda"
+            self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+            parameters: list[Token] = []
+            if not self.check(TokenType.RIGHT_PAREN):
+                while True:
+                    if len(parameters) >= 255: self.error(self.peek(), "Can't have more than 255 parameters.")
+                    param: Token | None = self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                    assert param is not None
+                    parameters.append(param)
+                    if not self.match([TokenType.COMMA]): break
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+            self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.") # fstrings need double '{' to escape
+            body: list[Stmt | None] = self.block()
+            return Lambda(parameters, body)
         if self.match([TokenType.LEFT_PAREN]):
             expr: Expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
