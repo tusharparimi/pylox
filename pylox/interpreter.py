@@ -2,13 +2,13 @@ from typing import cast, Optional
 from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
-from pylox.runtime_error import PyloxRuntimeError, BreakSignal
+from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break, Function, Return
 from pylox.environment import Environment, UnInitValue
 from pylox.lox_callable import LoxCallable, Clock
 from pylox.lox_function import LoxFunction
-from pylox.return_signal import ReturnSignal
+from pylox.control_flow_signal import ReturnSignal, BreakSignal
 
 class Interpreter:
     globals: Environment = Environment()
