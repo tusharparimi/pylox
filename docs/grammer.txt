@@ -32,9 +32,13 @@ Enhanced grammer (taking into account precedence and associativity) (eliminates 
 Each rule here only matches expressions at its precedence level or higher.
 
 program         -> declaration* EOF ;
-declaration     -> var_decl | statement ;
+declaration     -> fun_decl | var_decl | statement ;
 var_decl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
-statement       -> expr_stmt | print_stmt | block | if_stmt | while_stmt | for_stmt ;
+fun_decl        -> "fun" function ;
+function        -> IDENTIFIER "(" parameters? ")" block ;
+parameters      -> IDENTIFIER ( "," IDENTIFIER )* ;
+statement       -> expr_stmt | print_stmt | block | if_stmt | while_stmt | for_stmt | return_stmt;
+return_stmt     -> "return" expression? ";" ;
 for_stmt        -> "for" "(" ( var_decl | expr_stmt | ";" ) expression? ";" expression? ")" statement ;
 while_stmt      -> "while" "(" expression ")" statement ;
 if_stmt         -> "if" "(" expression ")" statement ( "else" statement )? ;
@@ -53,6 +57,8 @@ comparison      -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term            -> factor ( ( "-" | "+" ) factor )* ;
 factor          -> factor ("/" | "*") unary | unary ; # left recursive not good for parsing technique to be used
 factor          -> unary (("/" | "*") unary)* ;
-unary           -> ("-" | "!") unary | primary;
-unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | primary; # error production for binaryy expr without left operand
+unary           -> ("-" | "!") unary | call ;
+unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | call; # error production for binaryy expr without left operand
+call            -> primary ( "(" arguments? ")" )* ;
+arguments       -> expression ( "," expression )* ;
 primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;

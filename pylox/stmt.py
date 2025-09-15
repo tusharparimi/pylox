@@ -10,8 +10,10 @@ class Visitor(Protocol):
 	def visit_Break_Stmt(self, break_arg: Break): ...
 	def visit_Block_Stmt(self, block: Block): ...
 	def visit_Expression_Stmt(self, expression: Expression): ...
+	def visit_Function_Stmt(self, function: Function): ...
 	def visit_If_Stmt(self, if_arg: If): ...
-	def visit_Print_Stmt(self, print: Print): ...
+	def visit_Print_Stmt(self, print_arg: Print): ...
+	def visit_Return_Stmt(self, return_arg: Return): ...
 	def visit_Var_Stmt(self, var: Var): ...
 	def visit_While_Stmt(self, while_arg: While): ...
 
@@ -41,6 +43,15 @@ class Expression(Stmt):
 		return visitor.visit_Expression_Stmt(self)
 
 @dataclass(frozen=True)
+class Function(Stmt):
+	name: Token
+	params: list[Token]
+	body: list[Stmt | None]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Function_Stmt(self)
+
+@dataclass(frozen=True)
 class If(Stmt):
 	condition: Expr
 	then_branch: Stmt
@@ -55,6 +66,14 @@ class Print(Stmt):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Print_Stmt(self)
+
+@dataclass(frozen=True)
+class Return(Stmt):
+	keyword: Token
+	value: Optional[Expr]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Return_Stmt(self)
 
 @dataclass(frozen=True)
 class Var(Stmt):

@@ -9,6 +9,7 @@ def main_expr():
     define_ast(output_dir, "Expr", [
         "Assign     = name: Token, value: Expr",
         "Binary     = left: Optional[Expr], operator: Token, right: Optional[Expr]",
+        "Call       = callee: Expr, paren: Token, arguments: list[Expr]",
         "Grouping   = expression: Expr",
         "Literal    = value: object",
         "Logical    = left: Expr, operator: Token, right: Expr",
@@ -26,8 +27,10 @@ def main_stmt():
         "Break      = ",
         "Block      = statements: list[Stmt | None]",
         "Expression = expression: Expr",
+        "Function   = name: Token, params: list[Token], body: list[Stmt | None]",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
         "Print      = expression: Expr",
+        "Return     = keyword: Token, value: Optional[Expr]",
         "Var        = name: Token, initializer: Expr | UnInitValue",
         "While      = condition: Expr, body: Stmt"
     ])
@@ -57,7 +60,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             for type in types:
                 type_name = type.split("=")[0].strip()
                 file.write("\n\t")
-                if type_name in ["If", "While", "Break"]: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
+                if type_name in ["If", "While", "Break", "Print", "Return"]: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
                 else: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
 
             file.write("\n\n")

@@ -57,7 +57,7 @@ class Pylox:
         statements: list[Stmt] = parser.parse()
 
         if ErrorReporter.had_error: return
-        print(AstPrinter().print(statements))
+        # print(AstPrinter().print(statements))
         
         print("\nEval:")
         cls.interpreter.interpret(statements)

@@ -1,14 +1,20 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError, BreakSignal
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break
+from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break, Function, Return
 from pylox.environment import Environment, UnInitValue
+from pylox.lox_callable import LoxCallable, Clock
+from pylox.lox_function import LoxFunction
+from pylox.return_signal import ReturnSignal
 
 class Interpreter:
-    __environment: Environment = Environment()
+    globals: Environment = Environment()
+    __environment: Environment = globals 
+
+    globals.define("clock", Clock())
 
     def interpret(self, statements: list[Stmt]):
         try:
@@ -108,6 +114,15 @@ class Interpreter:
             case TokenType.EQUAL_EQUAL: return self.is_equal(left, right) # can just use left != right here
             case _: return None
 
+    def visit_Call_Expr(self, expr: Call) -> object:
+        callee: object = self.evaluate(expr.callee)
+        arguments: list[object] = []
+        for argument in expr.arguments: arguments.append(self.evaluate(argument))
+        if not isinstance(callee, LoxCallable): raise PyloxRuntimeError(expr.paren, "Can only call functions and classes.")
+        function: LoxCallable = callee
+        if len(arguments) != function.arity(): raise PyloxRuntimeError(expr.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
+        return function.call(self, arguments)
+
     def is_equal(self, a: object, b: object) -> bool: # this func is not needed (in python) but reminds me ow a different lang like java would need it as lox hhandles equality differently from it
         if a is None and b is None: return True
         if a is None: return False
@@ -130,6 +145,10 @@ class Interpreter:
     
     def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
 
+    def visit_Function_Stmt(self, stmt: Function) -> None:
+        function: LoxFunction = LoxFunction(stmt, self.__environment)
+        self.__environment.define(stmt.name.lexeme, function)
+
     def visit_If_Stmt(self, stmt: If) -> None:
         if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.then_branch)
         elif stmt.else_branch is not None: self.execute(stmt.else_branch)
@@ -137,6 +156,11 @@ class Interpreter:
     def visit_Print_Stmt(self, stmt: Print) -> None:
         value: object = self.evaluate(stmt.expression)
         print(self.stringify(value))
+
+    def visit_Return_Stmt(self, stmt: Return) -> None:
+        value: object = None
+        if stmt.value is not None: value = self.evaluate(stmt.value)
+        raise ReturnSignal(value)
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
         value: object | UnInitValue = UnInitValue()

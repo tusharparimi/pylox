@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break
+from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return
 from pylox.environment import UnInitValue
 
 class Parser:
@@ -21,12 +21,30 @@ class Parser:
         return statements
 
     def declaration(self) -> Optional[Stmt]:
-        try: 
+        try:
+            if self.match([TokenType.FUN]): return self.function("function")
             if self.match([TokenType.VAR]): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
             return None
+        
+    def function(self, kind: str) -> Function:
+        name: Optional[Token] = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters: list[Token] = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255: self.error(self.peek(), "Can't have more than 255 parameters.")
+                param: Token | None = self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                assert param is not None
+                parameters.append(param)
+                if not self.match([TokenType.COMMA]): break
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.") # fstrings need double '{' to escape
+        body: list[Stmt | None] = self.block()
+        assert isinstance(name, Token)
+        return Function(name, parameters, body)
     
     def var_declaration(self) -> Stmt:
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
@@ -42,9 +60,17 @@ class Parser:
         if self.match([TokenType.FOR]): return self.for_statement()
         if self.match([TokenType.IF]): return self.if_statement()
         if self.match([TokenType.PRINT]): return self.print_statement()
+        if self.match([TokenType.RETURN]): return self.return_statement()
         if self.match([TokenType.WHILE]): return self.while_statement()
         if self.match([TokenType.LEFT_BRACE]): return Block(self.block())
         return self.expression_statement()
+    
+    def return_statement(self) -> Stmt:
+        keyword: Token = self.previous()
+        value: Expr | None = None
+        if not self.check(TokenType.SEMICOLON): value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return Return(keyword, value)
     
     def break_statement(self) -> Stmt:
         self.consume(TokenType.SEMICOLON, "Expect ';' after 'break'.")
@@ -264,7 +290,26 @@ class Parser:
             self.error(operator, "Binary operator needs left and right operand")
             right = self.factor()
             return Binary(None, operator, right)
-        return self.primary()
+        return self.call()
+    
+    def call(self) -> Expr:
+        expr: Expr = self.primary()
+        while True:
+            if self.match([TokenType.LEFT_PAREN]): expr = self.finish_call(expr)
+            else: break
+        return expr
+    
+    def finish_call(self, callee: Expr) -> Expr:
+        arguments: list[Expr] = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            while True:
+                if len(arguments) >= 255: self.error(self.peek(), "Can't have more than 255 arguments.")
+                # arguments.append(self.expression())
+                arguments.append(self.ternary()) # can't parse as expression() because comma will get parsed as comma() operator in function calls
+                if not self.match([TokenType.COMMA]): break
+        paren: Token | None = self.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        assert isinstance(paren, Token)
+        return Call(callee, paren, arguments)
 
     def primary(self) -> Expr:
         if self.match([TokenType.FALSE]): return Literal(False)

@@ -7,6 +7,7 @@ from pylox.tokens import Token
 class Visitor(Protocol):
 	def visit_Assign_Expr(self, assign: Assign): ...
 	def visit_Binary_Expr(self, binary: Binary): ...
+	def visit_Call_Expr(self, call: Call): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
 	def visit_Logical_Expr(self, logical: Logical): ...
@@ -34,6 +35,15 @@ class Binary(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Binary_Expr(self)
+
+@dataclass(frozen=True)
+class Call(Expr):
+	callee: Expr
+	paren: Token
+	arguments: list[Expr]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Call_Expr(self)
 
 @dataclass(frozen=True)
 class Grouping(Expr):
