@@ -9,6 +9,7 @@ from pylox.ast_printer import AstPrinter
 from pylox.expr import Expr
 from pylox.interpreter import Interpreter
 from pylox.stmt import Stmt
+from pylox.resolver import Resolver
 
 class Pylox:
     interpreter: Interpreter = Interpreter()
@@ -56,9 +57,14 @@ class Pylox:
 
         statements: list[Stmt] = parser.parse()
 
-        if ErrorReporter.had_error: return
+        # if ErrorReporter.had_error: return
         # print(AstPrinter().print(statements))
+
+        if ErrorReporter.had_error: return
+        resolver: Resolver = Resolver(cls.interpreter)
+        resolver.resolve(statements)
         
+        if ErrorReporter.had_error: return
         print("\nEval:")
         cls.interpreter.interpret(statements)
 

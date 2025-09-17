@@ -13,6 +13,7 @@ from pylox.control_flow_signal import ReturnSignal, BreakSignal
 class Interpreter:
     globals: Environment = Environment()
     __environment: Environment = globals 
+    locals: dict[Expr, int] = {}
 
     globals.define("clock", Clock())
 
@@ -26,6 +27,8 @@ class Interpreter:
     def execute(self, stmt: Stmt) -> None:
         # if stmt is None: return
         stmt.accept(self)
+
+    def resolve(self, expr: Expr, depth: int) -> None: self.locals[expr] = depth
 
     def execute_block(self, statements: list[Stmt | None], environment: Environment) -> None:
         previous: Environment = self.__environment
@@ -141,7 +144,14 @@ class Interpreter:
         if self.is_truthy(condition_eval): return self.evaluate(expr.expr_if_true)
         return self.evaluate(expr.expr_if_false)
     
-    def visit_Variable_Expr(self, expr: Variable) -> object: return self.__environment.get(expr.name)
+    def visit_Variable_Expr(self, expr: Variable) -> object: 
+        # return self.__environment.get(expr.name)
+        return self.lookup_variable(expr.name, expr)
+    
+    def lookup_variable(self, name: Token, expr: Expr) -> object:
+        distance: int = self.locals.get(expr)
+        if distance is not None: return self.__environment.get_at(distance, name.lexeme)
+        return self.globals.get(name)
     
     def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
 
@@ -177,7 +187,10 @@ class Interpreter:
 
     def visit_Assign_Expr(self, expr: Assign) -> object:
         value: object = self.evaluate(expr.value)
-        self.__environment.assign(expr.name, value)
+        # self.__environment.assign(expr.name, value)
+        distance: int = self.locals.get(expr)
+        if distance is not None: self.__environment.assign_at(distance, expr.name, value)
+        else: self.globals.assign(expr.name, value)
         return value # assignment is an expression that can be nested inside other expressions
     
     def visit_Lambda_Expr(self, expr: Lambda) -> LoxFunction:
