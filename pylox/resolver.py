@@ -17,7 +17,7 @@ class Resolver:
     __scopes: list[dict[str, bool]] = field(default_factory=list)
     current_function: FunctionType = FunctionType.NONE
 
-    def set_current_function(self, new_function: FunctionType) -> None:
+    def set_current_function(self, new_function: FunctionType) -> None: # bad code? why freeze then change value of an attribute
         object.__setattr__(self, "current_function", new_function)
 
     def resolve(self, statements: list[Stmt]) -> None:
