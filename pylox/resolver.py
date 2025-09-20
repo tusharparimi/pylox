@@ -6,6 +6,7 @@ from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return
 from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
+from pylox.environment import UnInitValue
 
 class FunctionType(Enum):
     NONE = auto()
@@ -42,7 +43,7 @@ class Resolver:
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
         self.declare(stmt.name)
-        if stmt.initializer is not None: self.resolve_expr(stmt.initializer)
+        if stmt.initializer is not None and not isinstance(stmt.initializer, UnInitValue): self.resolve_expr(stmt.initializer)
         self.define(stmt.name)
 
     def declare(self, name: Token) -> None:
