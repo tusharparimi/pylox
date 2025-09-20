@@ -21,28 +21,28 @@ class Stmt(ABC):
 	@abstractmethod
 	def accept(self, visitor: Visitor): ...
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Break(Stmt):
 	
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Break_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Block(Stmt):
 	statements: list[Stmt | None]
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Block_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Expression(Stmt):
 	expression: Expr
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Expression_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Function(Stmt):
 	name: Token
 	params: list[Token]
@@ -51,7 +51,7 @@ class Function(Stmt):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Function_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class If(Stmt):
 	condition: Expr
 	then_branch: Stmt
@@ -60,14 +60,14 @@ class If(Stmt):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_If_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Print(Stmt):
 	expression: Expr
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Print_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Return(Stmt):
 	keyword: Token
 	value: Optional[Expr]
@@ -75,7 +75,7 @@ class Return(Stmt):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Return_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Var(Stmt):
 	name: Token
 	initializer: Expr | UnInitValue
@@ -83,7 +83,7 @@ class Var(Stmt):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Var_Stmt(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class While(Stmt):
 	condition: Expr
 	body: Stmt

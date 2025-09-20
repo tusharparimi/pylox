@@ -24,7 +24,7 @@ class Expr(ABC):
 	@abstractmethod
 	def accept(self, visitor: Visitor): ...
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Assign(Expr):
 	name: Token
 	value: Expr
@@ -32,7 +32,7 @@ class Assign(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Assign_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Binary(Expr):
 	left: Optional[Expr]
 	operator: Token
@@ -41,7 +41,7 @@ class Binary(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Binary_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Call(Expr):
 	callee: Expr
 	paren: Token
@@ -50,7 +50,7 @@ class Call(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Call_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Lambda(Expr):
 	params: list[Token]
 	body: list[Stmt | None]
@@ -58,21 +58,21 @@ class Lambda(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Lambda_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Grouping(Expr):
 	expression: Expr
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Grouping_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Literal(Expr):
 	value: object
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Literal_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Logical(Expr):
 	left: Expr
 	operator: Token
@@ -81,7 +81,7 @@ class Logical(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Logical_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Unary(Expr):
 	operator: Token
 	right: Expr
@@ -89,7 +89,7 @@ class Unary(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Unary_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Ternary(Expr):
 	condition: Expr
 	operator1: Token
@@ -100,7 +100,7 @@ class Ternary(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Ternary_Expr(self)
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Variable(Expr):
 	name: Token
 

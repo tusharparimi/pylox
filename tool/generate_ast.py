@@ -87,7 +87,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
 
 def define_type(file: TextIO, base_name: str, class_name: str, fields: str) -> None:
     file.write("\n\n")
-    file.write("@dataclass(frozen=True)")
+    file.write("@dataclass(frozen=True, eq=False)")
     file.write("\n")
     file.write(f"class {class_name}({base_name}):")
 
