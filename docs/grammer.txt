@@ -62,3 +62,7 @@ unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*"
 call            -> primary ( "(" arguments? ")" )* ;
 arguments       -> expression ( "," expression )* ;
 primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+
+
+Scope Rule:
+A variable usage refers to the preceding declaration with the same name in the innermost scope that encloses the expression where the variable is used.
