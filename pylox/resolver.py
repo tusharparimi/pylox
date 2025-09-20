@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pylox.interpreter import Interpreter
-from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While
-from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary
+from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While, Break
+from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
 
@@ -107,6 +107,9 @@ class Resolver:
         self.resolve_expr(stmt.condition)
         self.resolve_stmt(stmt.body)
 
+    def visit_Break_Stmt(self, stmt: Break) -> None:
+        return
+
     def visit_Binary_Expr(self, expr: Binary) -> None:
         self.resolve_expr(expr.left)
         self.resolve_expr(expr.right)
@@ -127,3 +130,11 @@ class Resolver:
 
     def visit_Unary_Expr(self, expr: Unary) -> None:
         self.resolve_expr(expr.right)
+
+    def visit_Ternary_Expr(self, expr: Ternary) -> None:
+        self.resolve_expr(expr.condition)
+        self.resolve_expr(expr.expr_if_true)
+        self.resolve_expr(expr.expr_if_false)
+
+    def visit_Lambda_Expr(self, expr: Lambda) -> None:
+        self.resolve_function(expr, FunctionType.FUNCTION)
