@@ -100,7 +100,7 @@ class Resolver:
         self.resolve_expr(stmt.expression)
 
     def visit_Return_Stmt(self, stmt: Return) -> None:
-        if self.current_function == FunctionType.NONE: ErrorReporter.error(stmt.keyword, "Can't return from top-level code.")
+        if self.current_function == FunctionType.NONE: ErrorReporter.error("Can't return from top-level code.", token=stmt.keyword)
         if stmt.value is not None: self.resolve_expr(stmt.value)
 
     def visit_While_Stmt(self, stmt: While) -> None:
