@@ -25,4 +25,6 @@ class LoxFunction(LoxCallable):
     def arity(self) -> int:
         return len(self.declaration.params)
 
-    def __str__(self) -> str: return f"<fn {self.declaration.name.lexeme}>"
+    def __str__(self) -> str: 
+        if isinstance(self.declaration, Lambda): return "<lambda fn>"
+        return f"<fn {self.declaration.name.lexeme}>"
