@@ -57,7 +57,7 @@ class Resolver:
         self.__scopes[-1][name.lexeme] = True
 
     def visit_Variable_Expr(self, expr: Variable) -> None:
-        if (not len(self.__scopes) == 0) and (self.__scopes[-1].get(expr.name.lexeme) == False):
+        if (len(self.__scopes) != 0) and (self.__scopes[-1].get(expr.name.lexeme) == False):
             ErrorReporter.error("Can't read local vvariable in its own initializer.", token=expr.name)
         self.resolve_local(expr, expr.name)
 
