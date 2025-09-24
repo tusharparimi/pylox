@@ -15,7 +15,7 @@ class FunctionType(Enum):
 @dataclass(frozen=True)
 class Resolver:
     interpreter: Interpreter
-    __scopes: list[dict[str, bool]] = field(default_factory=list)
+    __scopes: list[dict[str, list[bool, bool, Token]]] = field(default_factory=list) # scope is a dict with var name keys and tuple of bool values (is_resolved, is_used) 
     current_function: FunctionType = FunctionType.NONE
 
     def set_current_function(self, new_function: FunctionType) -> None: # bad code? why freeze then change value of an attribute
@@ -39,6 +39,8 @@ class Resolver:
         self.__scopes.append({})
 
     def end_scope(self) -> None:
+        for k,v in self.__scopes[-1].items():
+            if not v[1]: ErrorReporter.error(f"Local variable '{k}' not used", token=v[2])
         self.__scopes.pop()
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
@@ -48,17 +50,19 @@ class Resolver:
 
     def declare(self, name: Token) -> None:
         if len(self.__scopes) == 0: return
-        scope: dict[str, bool] = self.__scopes[-1]
+        scope: dict[str, list[bool, bool, Token]] = self.__scopes[-1]
         if name.lexeme in scope: ErrorReporter.error("Already a variable with this name in this scope.", token=name)
-        scope[name.lexeme] = False
+        scope[name.lexeme] = [False, False, name]
 
     def define(self, name: Token) -> None:
         if len(self.__scopes) == 0: return
-        self.__scopes[-1][name.lexeme] = True
+        self.__scopes[-1][name.lexeme][0] = True
 
     def visit_Variable_Expr(self, expr: Variable) -> None:
         if (len(self.__scopes) != 0) and (self.__scopes[-1].get(expr.name.lexeme) == False):
-            ErrorReporter.error("Can't read local vvariable in its own initializer.", token=expr.name)
+            ErrorReporter.error("Can't read local variable in its own initializer.", token=expr.name)
+        for i in range(len(self.__scopes) - 1, -1, -1):
+            if expr.name.lexeme in self.__scopes[i]: self.__scopes[i][expr.name.lexeme][1] = True
         self.resolve_local(expr, expr.name)
 
     def resolve_local(self, expr: Expr, name: Token) -> None:
