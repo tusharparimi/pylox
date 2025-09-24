@@ -40,7 +40,7 @@ class Resolver:
 
     def end_scope(self) -> None:
         for k,v in self.__scopes[-1].items():
-            if not v[1]: ErrorReporter.error(f"Local variable '{k}' not used", token=v[2])
+            if not v[1]: ErrorReporter.error(f"Local variable '{k}' not used", token=v[2], warning_flag=True)
         self.__scopes.pop()
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
