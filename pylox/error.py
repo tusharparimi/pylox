@@ -8,7 +8,7 @@ class ErrorReporter:
     had_warning: bool = False
 
     @classmethod
-    def error(cls, message: str, **kwargs):
+    def error(cls, message: str, **kwargs): # TODO: is there a cleaner way to do this?
         # used in scanner
         if "line" in kwargs: 
             cls.report(kwargs["line"], "", message)
