@@ -166,9 +166,6 @@ class Interpreter:
         self.global_idxs[stmt.name.lexeme] = self.global_var_count
         self.global_var_count += 1
         self.__environment.define(function)
-        # print(self.globals._Environment__values)
-        # print(self.global_idxs)
-        # print(self.global_var_count)
 
     def visit_If_Stmt(self, stmt: If) -> None:
         if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.then_branch)
@@ -190,9 +187,6 @@ class Interpreter:
         self.global_idxs[stmt.name.lexeme] = self.global_var_count
         self.global_var_count += 1
         self.__environment.define(value)
-        # print(self.globals._Environment__values)
-        # print(self.global_idxs)
-        # print(self.global_var_count)
 
     def visit_While_Stmt(self, stmt: While) -> None:
         while self.is_truthy(self.evaluate(stmt.condition)):
@@ -208,9 +202,6 @@ class Interpreter:
         distance, unique_idx = self.locals.get(expr) if self.locals.get(expr) else (None, None)
         if distance is not None: self.__environment.assign_at(distance, unique_idx, value)
         else: self.globals.assign(expr.name, value, self.global_idxs[expr.name.lexeme])
-        # print(self.globals._Environment__values)
-        # print(self.global_idxs)
-        # print(self.global_var_count)
         return value # assignment is an expression that can be nested inside other expressions
     
     def visit_Lambda_Expr(self, expr: Lambda) -> LoxFunction:

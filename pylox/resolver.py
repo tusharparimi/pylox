@@ -58,8 +58,6 @@ class Resolver:
         if name.lexeme in scope: ErrorReporter.error("Already a variable with this name in this scope.", token=name)
         scope[name.lexeme] = [False, False, name, self.var_counts[-1]]
         self.var_counts[-1] += 1
-        # print(self.__scopes)
-        # print(self.var_counts)
 
     def define(self, name: Token) -> None:
         if len(self.__scopes) == 0: return

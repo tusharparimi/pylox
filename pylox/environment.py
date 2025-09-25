@@ -7,15 +7,7 @@ from pylox.runtime_error import PyloxRuntimeError
 @dataclass(frozen=True)
 class Environment:
     enclosing: Optional[Environment] = None
-    # __values: dict[str, object | UnInitValue] = field(default_factory=dict) # state (field ensures each instance gets its own dict)
     __values: list[object | UnInitValue] = field(default_factory=list) # state (field ensures each instance gets its own list)
-
-    # def get(self, name: Token) -> object:
-    #     if name.lexeme in self.__values.keys(): 
-    #         if not isinstance(self.__values[name.lexeme], UnInitValue): return self.__values[name.lexeme]
-    #         raise PyloxRuntimeError(name, f"Variable '{name.lexeme}' accessed before its initialized or assigned.")
-    #     if self.enclosing is not None: return self.enclosing.get(name)
-    #     raise PyloxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def get(self, name: Token, idx: int) -> object:
         if idx < len(self.__values):
@@ -24,9 +16,6 @@ class Environment:
         if self.enclosing is not None: return self.enclosing.get(name, idx)
         raise PyloxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
-    # def define(self, name: str, value: object | UnInitValue) -> None:
-    #     self.__values[name] = value
-
     def define(self, value: object | UnInitValue) -> None:
         self.__values.append(value)
 
@@ -34,25 +23,12 @@ class Environment:
         environment: Environment = self
         for i in range(distance): environment = environment.enclosing
         return environment
-
-    # def get_at(self, distance: int, name: str) -> object:
-    #     return self.ancestor(distance).__values.get(name)
     
     def get_at(self, distance: int, name: str, idx: int) -> object:
         return self.ancestor(distance).__values[idx]
-    
-    # def assign_at(self, distance: int, name: Token, value: object) -> None:
-    #     self.ancestor(distance).__values[name.lexeme] = value
 
     def assign_at(self, distance: int, idx: int, value: object) -> None:
         self.ancestor(distance).__values[idx] = value
-
-    # def assign(self, name: Token, value: object) -> None:
-    #     if name.lexeme in self.__values.keys():
-    #         self.__values[name.lexeme] = value
-    #         return
-    #     if self.enclosing is not None: return self.enclosing.assign(name, value)
-    #     raise PyloxRuntimeError(name, f"Undefined variable '{name.lexeme}'.")
     
     def assign(self, name: Token, value: object, idx: int) -> None:
         if idx < len(self.__values):
