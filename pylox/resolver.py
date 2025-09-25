@@ -15,8 +15,10 @@ class FunctionType(Enum):
 @dataclass(frozen=True)
 class Resolver:
     interpreter: Interpreter
-    __scopes: list[dict[str, list[bool, bool, Token]]] = field(default_factory=list) # scope is a dict with var name keys and tuple of bool values (is_resolved, is_used) 
+    # scope is a dict with var name keys and values as list of [is_resolved, is_used, token_for_error_reporting, uniq_index_for_var_in_each_scope]
+    __scopes: list[dict[str, list[bool, bool, Token, int]]] = field(default_factory=list)
     current_function: FunctionType = FunctionType.NONE
+    var_counts: list[int] = field(default_factory=list)
 
     def set_current_function(self, new_function: FunctionType) -> None: # bad code? why freeze then change value of an attribute
         object.__setattr__(self, "current_function", new_function)
@@ -37,11 +39,13 @@ class Resolver:
 
     def begin_scope(self) -> None:
         self.__scopes.append({})
+        self.var_counts.append(0)
 
     def end_scope(self) -> None:
         for k,v in self.__scopes[-1].items():
             if not v[1]: ErrorReporter.error(f"Local variable '{k}' not used", token=v[2], warning_flag=True)
         self.__scopes.pop()
+        self.var_counts.pop()
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
         self.declare(stmt.name)
@@ -52,14 +56,17 @@ class Resolver:
         if len(self.__scopes) == 0: return
         scope: dict[str, list[bool, bool, Token]] = self.__scopes[-1]
         if name.lexeme in scope: ErrorReporter.error("Already a variable with this name in this scope.", token=name)
-        scope[name.lexeme] = [False, False, name]
+        scope[name.lexeme] = [False, False, name, self.var_counts[-1]]
+        self.var_counts[-1] += 1
+        # print(self.__scopes)
+        # print(self.var_counts)
 
     def define(self, name: Token) -> None:
         if len(self.__scopes) == 0: return
         self.__scopes[-1][name.lexeme][0] = True
 
     def visit_Variable_Expr(self, expr: Variable) -> None:
-        if (len(self.__scopes) != 0) and (self.__scopes[-1].get(expr.name.lexeme) == False):
+        if (len(self.__scopes) != 0) and self.__scopes[-1].get(expr.name.lexeme) and (self.__scopes[-1].get(expr.name.lexeme)[0] == False):
             ErrorReporter.error("Can't read local variable in its own initializer.", token=expr.name)
         for i in range(len(self.__scopes) - 1, -1, -1):
             if expr.name.lexeme in self.__scopes[i]: self.__scopes[i][expr.name.lexeme][1] = True
@@ -68,7 +75,7 @@ class Resolver:
     def resolve_local(self, expr: Expr, name: Token) -> None:
         for i in range(len(self.__scopes) - 1, -1, -1):
             if name.lexeme in self.__scopes[i]:
-                self.interpreter.resolve(expr, len(self.__scopes) - 1 - i)
+                self.interpreter.resolve(expr, len(self.__scopes) - 1 - i, self.__scopes[i][name.lexeme][3])
                 return
             
     def visit_Assign_Expr(self, expr: Assign) -> None:

@@ -13,9 +13,14 @@ from pylox.control_flow_signal import ReturnSignal, BreakSignal
 class Interpreter:
     globals: Environment = Environment()
     __environment: Environment = globals 
-    locals: dict[Expr, int] = {}
+    locals: dict[Expr, tuple[int, int]] = {} # values are (depth, unique_idx)
+    global_idxs: dict[str, int] = {} # key:value -> global_var_name:unique_idx
+    global_var_count: int = 0
 
-    globals.define("clock", Clock())
+    # globals.define("clock", Clock())
+    global_idxs["clock"] = global_var_count
+    global_var_count += 1
+    globals.define(Clock())
 
     def interpret(self, statements: list[Stmt]):
         try:
@@ -28,7 +33,7 @@ class Interpreter:
         # if stmt is None: return
         stmt.accept(self)
 
-    def resolve(self, expr: Expr, depth: int) -> None: self.locals[expr] = depth
+    def resolve(self, expr: Expr, depth: int, unique_idx: int) -> None: self.locals[expr] = (depth, unique_idx)
 
     def execute_block(self, statements: list[Stmt | None], environment: Environment) -> None:
         previous: Environment = self.__environment
@@ -149,15 +154,21 @@ class Interpreter:
         return self.lookup_variable(expr.name, expr)
     
     def lookup_variable(self, name: Token, expr: Expr) -> object:
-        distance: int = self.locals.get(expr)
-        if distance is not None: return self.__environment.get_at(distance, name.lexeme)
-        return self.globals.get(name)
+        distance, unique_idx = self.locals.get(expr) if self.locals.get(expr) else (None, None)
+        if distance is not None: return self.__environment.get_at(distance, name.lexeme, unique_idx)
+        return self.globals.get(name, self.global_idxs[name.lexeme])
     
     def visit_Expression_Stmt(self, stmt: Expression) -> None: self.evaluate(stmt.expression)
 
     def visit_Function_Stmt(self, stmt: Function) -> None:
         function: LoxFunction = LoxFunction(stmt, self.__environment)
-        self.__environment.define(stmt.name.lexeme, function)
+        # self.__environment.define(stmt.name.lexeme, function)
+        self.global_idxs[stmt.name.lexeme] = self.global_var_count
+        self.global_var_count += 1
+        self.__environment.define(function)
+        # print(self.globals._Environment__values)
+        # print(self.global_idxs)
+        # print(self.global_var_count)
 
     def visit_If_Stmt(self, stmt: If) -> None:
         if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.then_branch)
@@ -175,7 +186,13 @@ class Interpreter:
     def visit_Var_Stmt(self, stmt: Var) -> None:
         value: object | UnInitValue = UnInitValue()
         if not isinstance(stmt.initializer, UnInitValue): value = self.evaluate(stmt.initializer)
-        self.__environment.define(stmt.name.lexeme, value)
+        # self.__environment.define(stmt.name.lexeme, value)
+        self.global_idxs[stmt.name.lexeme] = self.global_var_count
+        self.global_var_count += 1
+        self.__environment.define(value)
+        # print(self.globals._Environment__values)
+        # print(self.global_idxs)
+        # print(self.global_var_count)
 
     def visit_While_Stmt(self, stmt: While) -> None:
         while self.is_truthy(self.evaluate(stmt.condition)):
@@ -188,9 +205,12 @@ class Interpreter:
     def visit_Assign_Expr(self, expr: Assign) -> object:
         value: object = self.evaluate(expr.value)
         # self.__environment.assign(expr.name, value)
-        distance: int = self.locals.get(expr)
-        if distance is not None: self.__environment.assign_at(distance, expr.name, value)
-        else: self.globals.assign(expr.name, value)
+        distance, unique_idx = self.locals.get(expr) if self.locals.get(expr) else (None, None)
+        if distance is not None: self.__environment.assign_at(distance, unique_idx, value)
+        else: self.globals.assign(expr.name, value, self.global_idxs[expr.name.lexeme])
+        # print(self.globals._Environment__values)
+        # print(self.global_idxs)
+        # print(self.global_var_count)
         return value # assignment is an expression that can be nested inside other expressions
     
     def visit_Lambda_Expr(self, expr: Lambda) -> LoxFunction:

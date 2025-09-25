@@ -17,7 +17,8 @@ class LoxFunction(LoxCallable):
 
     def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
         environment: Environment = Environment(self.closure)
-        for i in range(len(self.declaration.params)): environment.define(self.declaration.params[i].lexeme, arguments[i])
+        # for i in range(len(self.declaration.params)): environment.define(self.declaration.params[i].lexeme, arguments[i])
+        for i in range(len(self.declaration.params)): environment.define(arguments[i])
         try: interpreter.execute_block(self.declaration.body, environment)
         except ReturnSignal as r: return r.value
         return None
