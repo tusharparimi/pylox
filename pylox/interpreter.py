@@ -4,10 +4,11 @@ from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break, Function, Return
+from pylox.stmt import Stmt, Expression, Print, Var, Block, If, While, Break, Function, Return, Class
 from pylox.environment import Environment, UnInitValue
 from pylox.lox_callable import LoxCallable, Clock
 from pylox.lox_function import LoxFunction
+from pylox.lox_class import LoxClass
 from pylox.control_flow_signal import ReturnSignal, BreakSignal
 
 class Interpreter:
@@ -45,6 +46,13 @@ class Interpreter:
 
     def visit_Block_Stmt(self, stmt: Block) -> None:
         self.execute_block(stmt.statements, Environment(self.__environment))
+
+    def visit_Class_Stmt(self, stmt: Class) -> None:
+        self.global_idxs[stmt.name.lexeme] = self.global_var_count
+        self.global_var_count += 1
+        self.__environment.define(None)
+        klass: LoxClass = LoxClass(stmt.name.lexeme)
+        self.__environment.assign(stmt.name, klass, self.global_idxs[stmt.name.lexeme])
 
     def stringify(self, obj: object) -> str:
         if obj is None and not ErrorReporter.had_error: return "nil"

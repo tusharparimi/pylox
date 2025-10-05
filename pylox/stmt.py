@@ -9,6 +9,7 @@ from pylox.environment import UnInitValue
 class Visitor(Protocol):
 	def visit_Break_Stmt(self, break_arg: Break): ...
 	def visit_Block_Stmt(self, block: Block): ...
+	def visit_Class_Stmt(self, class_arg: Class): ...
 	def visit_Expression_Stmt(self, expression: Expression): ...
 	def visit_Function_Stmt(self, function: Function): ...
 	def visit_If_Stmt(self, if_arg: If): ...
@@ -34,6 +35,14 @@ class Block(Stmt):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Block_Stmt(self)
+
+@dataclass(frozen=True, eq=False)
+class Class(Stmt):
+	name: Token
+	methods: list[Function]
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Class_Stmt(self)
 
 @dataclass(frozen=True, eq=False)
 class Expression(Stmt):

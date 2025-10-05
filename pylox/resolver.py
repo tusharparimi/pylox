@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pylox.interpreter import Interpreter
-from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While, Break
+from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While, Break, Class
 from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
@@ -36,6 +36,10 @@ class Resolver:
         self.begin_scope()
         self.resolve(stmt.statements)
         self.end_scope()
+
+    def visit_Class_Stmt(self, stmt: Class) -> None:
+        self.declare(stmt.name)
+        self.define(stmt.name)
 
     def begin_scope(self) -> None:
         self.__scopes.append({})

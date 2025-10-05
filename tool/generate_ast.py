@@ -27,6 +27,7 @@ def main_stmt():
     define_ast(output_dir, "Stmt", [
         "Break      = ",
         "Block      = statements: list[Stmt | None]",
+        "Class      = name: Token, methods: list[Function]",
         "Expression = expression: Expr",
         "Function   = name: Token, params: list[Token], body: list[Stmt | None]",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
@@ -68,7 +69,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             for type in types:
                 type_name = type.split("=")[0].strip()
                 file.write("\n\t")
-                if type_name in ["If", "While", "Break", "Print", "Return", "Lambda"]: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
+                if type_name in ["If", "While", "Break", "Print", "Return", "Lambda", "Class"]: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}_arg: {type_name}): ...") 
                 else: file.write(f"def visit_{type_name}_{base_name}(self, {type_name.lower()}: {type_name}): ...")
 
             file.write("\n\n")

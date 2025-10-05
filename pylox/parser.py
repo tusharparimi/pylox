@@ -4,7 +4,7 @@ from pylox.tokens import Token
 from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
-from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return
+from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return, Class
 from pylox.environment import UnInitValue
 
 class Parser:
@@ -22,12 +22,21 @@ class Parser:
 
     def declaration(self) -> Optional[Stmt]:
         try:
+            if self.match([TokenType.CLASS]): return self.class_declaration()
             if self.match([TokenType.FUN]): return self.function("function")
             if self.match([TokenType.VAR]): return self.var_declaration()
             return self.statement()
         except Parser.ParseError:
             self.synchronize()
             return None
+        
+    def class_declaration(self) -> Stmt:
+        name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        self.consume(TokenType.LEFT_BRACE, "Expect '(' before class body.")
+        methods: list[Function] = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end(): methods.append(self.function("method"))
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
+        return Class(name, methods)
         
     def function(self, kind: str) -> Function | Expression:
         if not self.check(TokenType.IDENTIFIER):

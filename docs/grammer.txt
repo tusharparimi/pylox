@@ -32,7 +32,8 @@ Enhanced grammer (taking into account precedence and associativity) (eliminates 
 Each rule here only matches expressions at its precedence level or higher.
 
 program         -> declaration* EOF ;
-declaration     -> fun_decl | var_decl | statement ;
+declaration     -> class_decl | fun_decl | var_decl | statement ;
+class_decl      -> "class" IDENTIFIER "{" function "}" ;
 var_decl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
 fun_decl        -> "fun" function ;
 function        -> IDENTIFIER "(" parameters? ")" block ;
