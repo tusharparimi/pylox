@@ -170,10 +170,10 @@ class Interpreter:
 
     def visit_Function_Stmt(self, stmt: Function) -> None:
         function: LoxFunction = LoxFunction(stmt, self.__environment)
-        # self.__environment.define(stmt.name.lexeme, function)
-        self.global_idxs[stmt.name.lexeme] = self.global_var_count
-        self.global_var_count += 1
         self.__environment.define(function)
+        if self.__environment.enclosing is None:
+            self.global_idxs[stmt.name.lexeme] = self.global_var_count
+            self.global_var_count += 1
 
     def visit_If_Stmt(self, stmt: If) -> None:
         if self.is_truthy(self.evaluate(stmt.condition)): self.execute(stmt.then_branch)
@@ -190,11 +190,11 @@ class Interpreter:
 
     def visit_Var_Stmt(self, stmt: Var) -> None:
         value: object | UnInitValue = UnInitValue()
-        if not isinstance(stmt.initializer, UnInitValue): value = self.evaluate(stmt.initializer)
-        # self.__environment.define(stmt.name.lexeme, value)
-        self.global_idxs[stmt.name.lexeme] = self.global_var_count
-        self.global_var_count += 1
+        if not isinstance(stmt.initializer, UnInitValue): value = self.evaluate(stmt.initializer) 
         self.__environment.define(value)
+        if self.__environment.enclosing is None:
+            self.global_idxs[stmt.name.lexeme] = self.global_var_count
+            self.global_var_count += 1
 
     def visit_While_Stmt(self, stmt: While) -> None:
         while self.is_truthy(self.evaluate(stmt.condition)):
