@@ -10,10 +10,13 @@ def main_expr():
         "Assign     = name: Token, value: Expr",
         "Binary     = left: Optional[Expr], operator: Token, right: Optional[Expr]",
         "Call       = callee: Expr, paren: Token, arguments: list[Expr]",
+        "Get        = obj: Expr, name: Token",
         "Lambda     = params: list[Token], body: list[Stmt | None]",
         "Grouping   = expression: Expr",
         "Literal    = value: object",
         "Logical    = left: Expr, operator: Token, right: Expr",
+        "Set        = obj: Expr, name: Token, value: Expr",
+        "This       = keyword: Token",
         "Unary      = operator: Token, right: Expr",
         "Ternary    = condition: Expr, operator1: Token, expr_if_true: Expr, operator2: Token, expr_if_false: Expr",
         "Variable   = name: Token"

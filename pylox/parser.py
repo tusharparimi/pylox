@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return, Class
@@ -152,6 +152,9 @@ class Parser:
             if isinstance(expr, Variable): 
                 name: Token = expr.name
                 return Assign(name, value)
+            elif isinstance(expr, Get):
+                get: Get = expr
+                return Set(get.obj, get.name, value)
             self.error(equals, "Invalid assignment target.")
         return expr
     
@@ -308,6 +311,9 @@ class Parser:
         expr: Expr = self.primary()
         while True:
             if self.match([TokenType.LEFT_PAREN]): expr = self.finish_call(expr)
+            elif self.match([TokenType.DOT]):
+                name: Token = self.consume(TokenType.IDENTIFIER, "Expect propertyy name after '.'.")
+                expr = Get(expr, name)
             else: break
         return expr
     
@@ -328,6 +334,7 @@ class Parser:
         if self.match([TokenType.TRUE]): return Literal(True)
         if self.match([TokenType.NIL]): return Literal(None)
         if self.match([TokenType.NUMBER, TokenType.STRING]): return Literal(self.previous().literal)
+        if self.match([TokenType.THIS]): return This(self.previous())
         if self.match([TokenType.IDENTIFIER]): return Variable(self.previous())
         if self.match([TokenType.FUN]):
             kind: str = "lambda"

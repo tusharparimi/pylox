@@ -49,7 +49,7 @@ print_stmt      -> "print" expression ";" ;
 
 expression      -> comma ;
 comma           -> assignmment ( "," assignmment )* ;
-assignmment     -> IDENTIFIER "=" assignmment | logic_or ;
+assignmment     -> ( call "." )? IDENTIFIER "=" assignmment | logic_or ;
 logic_or        -> logic_and ( "or" logic_and )* ;
 logic_and       -> ternary ( "and" ternary )* ;
 ternary         -> equality ( "?" equality ":" ternary )* ;
@@ -60,7 +60,7 @@ factor          -> factor ("/" | "*") unary | unary ; # left recursive not good 
 factor          -> unary (("/" | "*") unary)* ;
 unary           -> ("-" | "!") unary | call ;
 unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | call; # error production for binaryy expr without left operand
-call            -> primary ( "(" arguments? ")" )* ;
+call            -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 arguments       -> expression ( "," expression )* ;
 primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 

@@ -12,10 +12,13 @@ class Visitor(Protocol):
 	def visit_Assign_Expr(self, assign: Assign): ...
 	def visit_Binary_Expr(self, binary: Binary): ...
 	def visit_Call_Expr(self, call: Call): ...
+	def visit_Get_Expr(self, get: Get): ...
 	def visit_Lambda_Expr(self, lambda_arg: Lambda): ...
 	def visit_Grouping_Expr(self, grouping: Grouping): ...
 	def visit_Literal_Expr(self, literal: Literal): ...
 	def visit_Logical_Expr(self, logical: Logical): ...
+	def visit_Set_Expr(self, set: Set): ...
+	def visit_This_Expr(self, this: This): ...
 	def visit_Unary_Expr(self, unary: Unary): ...
 	def visit_Ternary_Expr(self, ternary: Ternary): ...
 	def visit_Variable_Expr(self, variable: Variable): ...
@@ -51,6 +54,14 @@ class Call(Expr):
 		return visitor.visit_Call_Expr(self)
 
 @dataclass(frozen=True, eq=False)
+class Get(Expr):
+	obj: Expr
+	name: Token
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Get_Expr(self)
+
+@dataclass(frozen=True, eq=False)
 class Lambda(Expr):
 	params: list[Token]
 	body: list[Stmt | None]
@@ -80,6 +91,22 @@ class Logical(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Logical_Expr(self)
+
+@dataclass(frozen=True, eq=False)
+class Set(Expr):
+	obj: Expr
+	name: Token
+	value: Expr
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_Set_Expr(self)
+
+@dataclass(frozen=True, eq=False)
+class This(Expr):
+	keyword: Token
+
+	def accept(self, visitor: Visitor):
+		return visitor.visit_This_Expr(self)
 
 @dataclass(frozen=True, eq=False)
 class Unary(Expr):
