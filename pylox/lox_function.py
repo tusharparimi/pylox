@@ -27,9 +27,11 @@ class LoxFunction(LoxCallable):
         for i in range(len(self.declaration.params)): environment.define(arguments[i])
         try: interpreter.execute_block(self.declaration.body, environment)
         except ReturnSignal as r:
-            if self.is_initializer: return self.closure.get_at(0, "this")
+            # case of init with empty return
+            if self.is_initializer: return self.closure.get_at(distance=0, name="this", idx=0) # 'this' will be at 0th index as created at resolving class stmt
             return r.value
-        if self.is_initializer: return self.closure.get_at(0, "this")
+        # case of init with no return
+        if self.is_initializer: return self.closure.get_at(distance=0, name="this", idx=0) # 'this' will be at 0th index as created at resolving class stmt
         return None
     
     def arity(self) -> int:
