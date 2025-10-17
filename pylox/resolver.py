@@ -61,6 +61,7 @@ class Resolver:
             self.resolve_function(method, declaration)
         for class_method in stmt.class_methods:
             declaration: FunctionType = FunctionType.METHOD
+            if class_method.name.lexeme == "init": ErrorReporter.error("class methods cannot have name 'init'", token=class_method.name)
             self.resolve_function(class_method, declaration)
         self.end_scope()
         self.set_current_class(enclosing_class)
