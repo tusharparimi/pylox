@@ -54,10 +54,15 @@ class Interpreter:
         self.global_var_count += 1
         self.__environment.define(None)
         methods: dict[str, LoxFunction] = {}
+        class_methods: dict[str, LoxFunction] = {}
         for method in stmt.methods:
             function: LoxFunction = LoxFunction(method, self.__environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
+        for class_method in stmt.class_methods:
+            function: LoxFunction = LoxFunction(class_method, self.__environment, False)
+            class_methods[class_method.name.lexeme] = function
         klass: LoxClass = LoxClass(stmt.name.lexeme, methods)
+        klass.fields = class_methods
         self.__environment.assign(stmt.name, klass, self.global_idxs[stmt.name.lexeme])
 
     def stringify(self, obj: object) -> str:

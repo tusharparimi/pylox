@@ -59,6 +59,9 @@ class Resolver:
             declaration: FunctionType = FunctionType.METHOD
             if method.name.lexeme == "init": declaration = FunctionType.INITIALIZER
             self.resolve_function(method, declaration)
+        for class_method in stmt.class_methods:
+            declaration: FunctionType = FunctionType.METHOD
+            self.resolve_function(class_method, declaration)
         self.end_scope()
         self.set_current_class(enclosing_class)
 

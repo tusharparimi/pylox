@@ -8,16 +8,16 @@ if TYPE_CHECKING:
     from pylox.interpreter import Interpreter
     from pylox.lox_function import LoxFunction
 
-@dataclass(frozen=True)
-class LoxClass(LoxCallable):
-    name: str
-    methods: dict[str, LoxFunction] = field(default_factory=dict)
+class LoxClass(LoxCallable, LoxInstance):
+    def __init__(self, name: str, methods: dict[str, LoxFunction]):
+        self.name = name
+        self.methods = methods
 
     def find_method(self, name: str) -> Optional[LoxFunction]:
         if name in self.methods: return self.methods[name]
 
     def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
-        instance: LoxInstance = LoxInstance(self)
+        instance: LoxInstance = LoxInstance(klass=self, fields={})
         initializer: LoxFunction = self.find_method("init")
         if initializer is not None: initializer.bind(instance).call(interpreter, arguments)
         return instance

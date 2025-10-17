@@ -30,7 +30,7 @@ def main_stmt():
     define_ast(output_dir, "Stmt", [
         "Break      = ",
         "Block      = statements: list[Stmt | None]",
-        "Class      = name: Token, methods: list[Function]",
+        "Class      = name: Token, methods: list[Function], class_methods: list[Function]",
         "Expression = expression: Expr",
         "Function   = name: Token, params: list[Token], body: list[Stmt | None]",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",

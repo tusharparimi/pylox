@@ -34,9 +34,14 @@ class Parser:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
         self.consume(TokenType.LEFT_BRACE, "Expect '(' before class body.")
         methods: list[Function] = []
-        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end(): methods.append(self.function("method"))
+        class_methods: list[Function] = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            if self.check(TokenType.CLASS):
+                self.advance()
+                class_methods.append(self.function("class_method"))
+            else: methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
-        return Class(name, methods)
+        return Class(name, methods, class_methods)
         
     def function(self, kind: str) -> Function | Expression:
         if not self.check(TokenType.IDENTIFIER):

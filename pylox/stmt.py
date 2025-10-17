@@ -40,6 +40,7 @@ class Block(Stmt):
 class Class(Stmt):
 	name: Token
 	methods: list[Function]
+	class_methods: list[Function]
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Class_Stmt(self)

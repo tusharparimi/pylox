@@ -8,10 +8,10 @@ if TYPE_CHECKING:
     from pylox.lox_class import LoxClass
     from pylox.lox_function import LoxFunction
 
-@dataclass(frozen=True)
 class LoxInstance:
-    klass: LoxClass
-    fields: dict[str, object] = field(default_factory=dict)
+    def __init__(self, klass: LoxClass, fields: dict[str, object]):
+        self.klass = klass
+        self.fields = fields
 
     def get(self, name: Token) -> object:
         if name.lexeme in self.fields: return self.fields[name.lexeme]
