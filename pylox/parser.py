@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return, Class
@@ -32,6 +32,10 @@ class Parser:
         
     def class_declaration(self) -> Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        superclass: Optional[Variable] = None
+        if self.match([TokenType.LESS]):
+            self.consume(TokenType.IDENTIFIER, "Expect superclass name.")
+            superclass = Variable(self.previous())
         self.consume(TokenType.LEFT_BRACE, "Expect '(' before class body.")
         methods: list[Function] = []
         class_methods: list[Function] = []
@@ -41,7 +45,7 @@ class Parser:
                 class_methods.append(self.function("class_method"))
             else: methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
-        return Class(name, methods, class_methods)
+        return Class(name, superclass, methods, class_methods)
 
     def function(self, kind: str) -> Function | Expression:
         is_getter: bool = False
@@ -342,6 +346,11 @@ class Parser:
         if self.match([TokenType.TRUE]): return Literal(True)
         if self.match([TokenType.NIL]): return Literal(None)
         if self.match([TokenType.NUMBER, TokenType.STRING]): return Literal(self.previous().literal)
+        if self.match({TokenType.SUPER}):
+            keyword: Token = self.previous()
+            self.consume(TokenType.DOT, "Expect '.' after 'super'.")
+            method: Token = self.consume(TokenType.IDENTIFIER, "Expect superclass method name.")
+            return Super(keyword, method)
         if self.match([TokenType.THIS]): return This(self.previous())
         if self.match([TokenType.IDENTIFIER]): return Variable(self.previous())
         if self.match([TokenType.FUN]):

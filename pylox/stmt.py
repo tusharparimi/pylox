@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol, Optional
 from pylox.tokens import Token
-from pylox.expr import Expr
+from pylox.expr import Expr, Variable
 from pylox.environment import UnInitValue
 
 class Visitor(Protocol):
@@ -39,6 +39,7 @@ class Block(Stmt):
 @dataclass(frozen=True, eq=False)
 class Class(Stmt):
 	name: Token
+	superclass: Optional[Variable]
 	methods: list[Function]
 	class_methods: list[Function]
 

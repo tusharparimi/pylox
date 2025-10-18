@@ -16,6 +16,7 @@ def main_expr():
         "Literal    = value: object",
         "Logical    = left: Expr, operator: Token, right: Expr",
         "Set        = obj: Expr, name: Token, value: Expr",
+        "Super      = keyword: Token, method: Token",
         "This       = keyword: Token",
         "Unary      = operator: Token, right: Expr",
         "Ternary    = condition: Expr, operator1: Token, expr_if_true: Expr, operator2: Token, expr_if_false: Expr",
@@ -30,7 +31,7 @@ def main_stmt():
     define_ast(output_dir, "Stmt", [
         "Break      = ",
         "Block      = statements: list[Stmt | None]",
-        "Class      = name: Token, methods: list[Function], class_methods: list[Function]",
+        "Class      = name: Token, superclass: Optional[Variable], methods: list[Function], class_methods: list[Function]",
         "Expression = expression: Expr",
         "Function   = name: Token, params: list[Token], body: list[Stmt | None], is_getter: bool",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
@@ -55,7 +56,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
             file.write("from pylox.tokens import Token")
             if sys._getframe(1).f_code.co_name == "main_stmt": # checksif define_ast() was called by main_stmt() 
                 file.write("\n")
-                file.write("from pylox.expr import Expr")
+                file.write("from pylox.expr import Expr, Variable")
                 file.write("\n")
                 file.write("from pylox.environment import UnInitValue")
             if sys._getframe(1).f_code.co_name == "main_expr": # checksif define_ast() was called by main_stmt() 

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from pylox.interpreter import Interpreter
 from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While, Break, Class
-from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda, Get, Set, This
+from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda, Get, Set, This, Super
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
 from pylox.environment import UnInitValue
@@ -17,6 +17,7 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NONE = auto()
     CLASS = auto()
+    SUBCLASS = auto()
 
 @dataclass(frozen=True)
 class Resolver:
@@ -52,6 +53,14 @@ class Resolver:
         self.set_current_class(ClassType.CLASS)
         self.declare(stmt.name)
         self.define(stmt.name)
+        if stmt.superclass is not None and stmt.name.lexeme == stmt.superclass.name.lexeme: ErrorReporter.error("A class can't inherit from itself.", stmt.superclass.name)
+        if stmt.superclass is not None:
+            self.set_current_class(ClassType.SUBCLASS)
+            self.resolve_expr(stmt.superclass)
+        if stmt.superclass is not None:
+            self.begin_scope()
+            self.__scopes[-1]["super"] = [True, True, stmt.name, self.var_counts[-1]]
+            self.var_counts[-1] += 1
         self.begin_scope()
         self.__scopes[-1]["this"] = [True, True, stmt.name, self.var_counts[-1]] # is_used is True for 'this' even if its not used in anywere in te class as its suppose to be hidden
         self.var_counts[-1] += 1
@@ -64,6 +73,7 @@ class Resolver:
             if class_method.name.lexeme == "init": ErrorReporter.error("class methods cannot have name 'init'", token=class_method.name)
             self.resolve_function(class_method, declaration)
         self.end_scope()
+        if stmt.superclass is not None: self.end_scope()
         self.set_current_class(enclosing_class)
 
     def begin_scope(self) -> None:
@@ -175,6 +185,11 @@ class Resolver:
     def visit_Set_Expr(self, expr: Set) -> None:
         self.resolve_expr(expr.value)
         self.resolve_expr(expr.obj)
+
+    def visit_Super_Expr(self, expr: Super) -> None:
+        if self.current_class == ClassType.NONE: ErrorReporter.error("Can't use 'super' outside of a class.", token=expr.keyword)
+        elif self.current_class != ClassType.SUBCLASS: ErrorReporter.error("Can't use 'super' in a class with no superclass.", token=expr.keyword)
+        self.resolve_local(expr, expr.keyword)
 
     def visit_This_Expr(self, expr: This) -> None:
         if self.current_class == ClassType.NONE:

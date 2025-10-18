@@ -33,7 +33,7 @@ Each rule here only matches expressions at its precedence level or higher.
 
 program         -> declaration* EOF ;
 declaration     -> class_decl | fun_decl | var_decl | statement ;
-class_decl      -> "class" IDENTIFIER "{" function "}" ;
+class_decl      -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function "}" ;
 var_decl        -> "var" IDENTIFIER ( "=" expression )? ";" ;
 fun_decl        -> "fun" function ;
 function        -> IDENTIFIER "(" parameters? ")" block ;
@@ -62,7 +62,7 @@ unary           -> ("-" | "!") unary | call ;
 unary           -> ("-" | "!" | "!=" | "==" | ">" | ">=" | "<" | "<=" |"/" | "*" | "+") unary | call; # error production for binaryy expr without left operand
 call            -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 arguments       -> expression ( "," expression )* ;
-primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
 
 
 Scope Rule:

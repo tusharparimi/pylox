@@ -9,12 +9,14 @@ if TYPE_CHECKING:
     from pylox.lox_function import LoxFunction
 
 class LoxClass(LoxCallable, LoxInstance):
-    def __init__(self, name: str, methods: dict[str, LoxFunction]):
+    def __init__(self, name: str, superclass: Optional[LoxClass], methods: dict[str, LoxFunction]):
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
     def find_method(self, name: str) -> Optional[LoxFunction]:
         if name in self.methods: return self.methods[name]
+        if self.superclass is not None: return self.superclass.find_method(name)
 
     def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
         instance: LoxInstance = LoxInstance(klass=self, fields={})

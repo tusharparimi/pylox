@@ -1,5 +1,5 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -50,9 +50,16 @@ class Interpreter:
         self.execute_block(stmt.statements, Environment(self.__environment))
 
     def visit_Class_Stmt(self, stmt: Class) -> None:
+        superclass: object = None
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, LoxClass): raise PyloxRuntimeError(stmt.superclass.name, "Superclass must be a class.")
         self.global_idxs[stmt.name.lexeme] = self.global_var_count
         self.global_var_count += 1
         self.__environment.define(None)
+        if stmt.superclass is not None:
+            self.__environment = Environment(self.__environment)
+            self.__environment.define(superclass)
         methods: dict[str, LoxFunction] = {}
         class_methods: dict[str, LoxFunction] = {}
         for method in stmt.methods:
@@ -61,8 +68,9 @@ class Interpreter:
         for class_method in stmt.class_methods:
             function: LoxFunction = LoxFunction(class_method, self.__environment, False)
             class_methods[class_method.name.lexeme] = function
-        klass: LoxClass = LoxClass(stmt.name.lexeme, methods)
+        klass: LoxClass = LoxClass(stmt.name.lexeme, superclass, methods)
         klass.fields = class_methods
+        if superclass is not None: self.__environment = self.__environment.enclosing
         self.__environment.assign(stmt.name, klass, self.global_idxs[stmt.name.lexeme])
 
     def stringify(self, obj: object) -> str:
@@ -92,6 +100,15 @@ class Interpreter:
         obj.set(expr.name, value)
         return value
     
+    def visit_Super_Expr(self, expr: Super) -> object:
+        distance, unique_idx = self.locals.get(expr)
+        superclass: LoxClass = self.__environment.get_at(distance, "super", unique_idx)
+        # 'this' is always right inside the environent where we store 'super' (hacky)
+        object: LoxInstance = self.__environment.get_at(distance - 1, "this", idx=0) # 'this' will be at 0th index as created at resolving class stmt
+        method: LoxFunction = superclass.find_method(expr.method.lexeme)
+        if method is None: raise PyloxRuntimeError(expr.method, f"Undefined pproperty '{expr.method.lexeme}'.")
+        return method.bind(object)
+
     def visit_This_Expr(self, expr: This) -> object:
         return self.lookup_variable(expr.keyword, expr)
     
