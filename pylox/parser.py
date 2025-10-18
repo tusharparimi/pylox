@@ -42,26 +42,29 @@ class Parser:
             else: methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
         return Class(name, methods, class_methods)
-        
+
     def function(self, kind: str) -> Function | Expression:
         if not self.check(TokenType.IDENTIFIER):
             self.current -= 1
             return self.expression_statement()
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
-        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
-        parameters: list[Token] = []
-        if not self.check(TokenType.RIGHT_PAREN):
-            while True:
-                if len(parameters) >= 255: self.error(self.peek(), "Can't have more than 255 parameters.")
-                param: Token | None = self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
-                assert param is not None
-                parameters.append(param)
-                if not self.match([TokenType.COMMA]): break
-        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        if not self.check(TokenType.LEFT_PAREN):
+            parameters: list[Token] = []
+        else:
+            self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+            parameters: list[Token] = []
+            if not self.check(TokenType.RIGHT_PAREN):
+                while True:
+                    if len(parameters) >= 255: self.error(self.peek(), "Can't have more than 255 parameters.")
+                    param: Token | None = self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                    assert param is not None
+                    parameters.append(param)
+                    if not self.match([TokenType.COMMA]): break
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
         self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.") # fstrings need double '{' to escape
         body: list[Stmt | None] = self.block()
         assert isinstance(name, Token)
-        return Function(name, parameters, body)
+        return Function(name, parameters, body, is_getter=not parameters)
     
     def var_declaration(self) -> Stmt:
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, "Expect variable name.")

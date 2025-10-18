@@ -32,7 +32,7 @@ def main_stmt():
         "Block      = statements: list[Stmt | None]",
         "Class      = name: Token, methods: list[Function], class_methods: list[Function]",
         "Expression = expression: Expr",
-        "Function   = name: Token, params: list[Token], body: list[Stmt | None]",
+        "Function   = name: Token, params: list[Token], body: list[Stmt | None], is_getter: bool",
         "If         = condition: Expr, then_branch: Stmt, else_branch: Optional[Stmt]",
         "Print      = expression: Expr",
         "Return     = keyword: Token, value: Optional[Expr]",

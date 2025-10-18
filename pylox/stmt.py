@@ -57,6 +57,7 @@ class Function(Stmt):
 	name: Token
 	params: list[Token]
 	body: list[Stmt | None]
+	is_getter: bool
 
 	def accept(self, visitor: Visitor):
 		return visitor.visit_Function_Stmt(self)

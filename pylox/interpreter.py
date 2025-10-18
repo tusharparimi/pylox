@@ -162,7 +162,10 @@ class Interpreter:
     
     def visit_Get_Expr(self, expr: Get) -> object:
         obj: object = self.evaluate(expr.obj)
-        if isinstance(obj, LoxInstance): return obj.get(expr.name)
+        if isinstance(obj, LoxInstance):
+            res = obj.get(expr.name)
+            if isinstance(res, LoxFunction) and res.declaration.is_getter: return res.call(self, [])
+            return res
         raise PyloxRuntimeError(expr.name, "Only instances have properties.")
 
     def is_equal(self, a: object, b: object) -> bool: # this func is not needed (in python) but reminds me ow a different lang like java would need it as lox hhandles equality differently from it
