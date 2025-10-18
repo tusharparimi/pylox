@@ -44,15 +44,15 @@ class Parser:
         return Class(name, methods, class_methods)
 
     def function(self, kind: str) -> Function | Expression:
+        is_getter: bool = False
         if not self.check(TokenType.IDENTIFIER):
             self.current -= 1
             return self.expression_statement()
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
-        if not self.check(TokenType.LEFT_PAREN):
-            parameters: list[Token] = []
+        parameters: list[Token] = []
+        if not self.check(TokenType.LEFT_PAREN): is_getter = True
         else:
             self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
-            parameters: list[Token] = []
             if not self.check(TokenType.RIGHT_PAREN):
                 while True:
                     if len(parameters) >= 255: self.error(self.peek(), "Can't have more than 255 parameters.")
@@ -64,7 +64,7 @@ class Parser:
         self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.") # fstrings need double '{' to escape
         body: list[Stmt | None] = self.block()
         assert isinstance(name, Token)
-        return Function(name, parameters, body, is_getter=not parameters)
+        return Function(name, parameters, body, is_getter=is_getter)
     
     def var_declaration(self) -> Stmt:
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
