@@ -39,7 +39,7 @@ class Block(Stmt):
 @dataclass(frozen=True, eq=False)
 class Class(Stmt):
 	name: Token
-	superclass: Optional[Variable]
+	superclasses: list[Variable]
 	methods: list[Function]
 	class_methods: list[Function]
 

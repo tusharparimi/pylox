@@ -15,7 +15,9 @@ class LoxInstance:
 
     def get(self, name: Token) -> object:
         if name.lexeme in self.fields: return self.fields[name.lexeme]
+        # print("instance find_methhod ----------------------------------------------------------")
         method: LoxFunction = self.klass.find_method(name.lexeme)
+        # print("instance END -------------------------------------------------------------------")
         if method is not None: return method.bind(self)
         raise PyloxRuntimeError(name, f"Undefined property '{name.lexeme}'.")
     

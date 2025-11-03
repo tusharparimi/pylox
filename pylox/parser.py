@@ -32,11 +32,14 @@ class Parser:
         
     def class_declaration(self) -> Stmt:
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
-        superclass: Optional[Variable] = None
-        if self.match([TokenType.LESS]):
+        # superclass: Optional[Variable] = None
+        superclasses: list[Variable] = []
+        # if self.match([TokenType.LESS]):
+        while not self.check(TokenType.LEFT_BRACE) and not self.is_at_end():
+            self.consume(TokenType.LESS, "Expect '<' before superclass name.")
             self.consume(TokenType.IDENTIFIER, "Expect superclass name.")
-            superclass = Variable(self.previous())
-        self.consume(TokenType.LEFT_BRACE, "Expect '(' before class body.")
+            superclasses.append(Variable(self.previous()))
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
         methods: list[Function] = []
         class_methods: list[Function] = []
         while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
@@ -45,7 +48,8 @@ class Parser:
                 class_methods.append(self.function("class_method"))
             else: methods.append(self.function("method"))
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
-        return Class(name, superclass, methods, class_methods)
+        # for sc in superclasses: print(sc, "\n\n")
+        return Class(name, superclasses, methods, class_methods)
 
     def function(self, kind: str) -> Function | Expression:
         is_getter: bool = False
