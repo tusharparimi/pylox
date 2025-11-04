@@ -53,18 +53,10 @@ class Resolver:
         self.set_current_class(ClassType.CLASS)
         self.declare(stmt.name)
         self.define(stmt.name)
-        # if stmt.superclass is not None and stmt.name.lexeme == stmt.superclass.name.lexeme: ErrorReporter.error("A class can't inherit from itself.", stmt.superclass.name)
         if stmt.superclasses and any([stmt.name.lexeme == sc.name.lexeme for sc in stmt.superclasses]): ErrorReporter.error("A class can't inherit from itself.", stmt.superclass.name)
-        # if stmt.superclass is not None:
-        #     self.set_current_class(ClassType.SUBCLASS)
-        #     self.resolve_expr(stmt.superclass)
         if stmt.superclasses:
             self.set_current_class(ClassType.SUBCLASS)
             for sc in stmt.superclasses: self.resolve_expr(sc)
-        # if stmt.superclass is not None:
-        #     self.begin_scope()
-        #     self.__scopes[-1]["super"] = [True, True, stmt.name, self.var_counts[-1]]
-        #     self.var_counts[-1] += 1
         if stmt.superclasses:
             self.begin_scope()
             self.__scopes[-1]["super"] = [True, True, stmt.name, self.var_counts[-1]]
@@ -81,7 +73,6 @@ class Resolver:
             if class_method.name.lexeme == "init": ErrorReporter.error("class methods cannot have name 'init'", token=class_method.name)
             self.resolve_function(class_method, declaration)
         self.end_scope()
-        # if stmt.superclass is not None: self.end_scope()
         if stmt.superclasses: self.end_scope()
         self.set_current_class(enclosing_class)
 
