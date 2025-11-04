@@ -9,22 +9,16 @@ if TYPE_CHECKING:
     from pylox.lox_function import LoxFunction
 
 class LoxClass(LoxCallable, LoxInstance):
-    # def __init__(self, name: str, superclass: Optional[LoxClass], methods: dict[str, LoxFunction]):
-    def __init__(self, name: str, superclasses: list[LoxClass], methods: dict[str, LoxFunction]):
+    def __init__(self, name: str, superclasses: list[LoxClass], methods: dict[str, LoxFunction], mro: list[LoxClass] = []):
         self.name = name
         self.superclasses = superclasses
         self.methods = methods
+        self.mro = mro
 
     def find_method(self, name: str) -> Optional[LoxFunction]:
-        # print("lox func: ", self)
-        # print(self.methods)
-        if name in self.methods:
-            # print("found method //////////////////////")
-            return self.methods[name]
-        # if self.superclass is not None: return self.superclass.find_method(name)
-        if self.superclasses:
-            for sc in self.superclasses: # multiple inheritance follows
-                if (loxfunc := sc.find_method(name)) is not None: return loxfunc
+        if name in self.methods: return self.methods[name]
+        for sc in self.mro:
+            if name in sc.methods: return sc.methods[name]
 
     def call(self, interpreter: Interpreter, arguments: list[object]) -> object:
         instance: LoxInstance = LoxInstance(klass=self, fields={})
@@ -38,4 +32,4 @@ class LoxClass(LoxCallable, LoxInstance):
         return initializer.arity()
 
     def __str__(self):
-        return self.name
+        return self.name + str(len(self.mro))
