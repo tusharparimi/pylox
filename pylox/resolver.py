@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from pylox.interpreter import Interpreter
 from pylox.stmt import Stmt, Block, Var, Function, Expression, If, Print, Return, While, Break, Class
-from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda, Get, Set, This, Super
+from pylox.expr import Expr, Variable, Assign, Binary, Call, Grouping, Literal, Logical, Unary, Ternary, Lambda, Get, Set, This, Super, Inner
 from pylox.tokens import Token
 from pylox.error import ErrorReporter
 from pylox.environment import UnInitValue
@@ -63,6 +63,8 @@ class Resolver:
             self.var_counts[-1] += 1
         self.begin_scope()
         self.__scopes[-1]["this"] = [True, True, stmt.name, self.var_counts[-1]] # is_used is True for 'this' even if its not used in anywere in te class as its suppose to be hidden
+        self.var_counts[-1] += 1
+        self.__scopes[-1]["inner"] = [True, True, stmt.name, self.var_counts[-1]]
         self.var_counts[-1] += 1
         for method in stmt.methods:
             declaration: FunctionType = FunctionType.METHOD
@@ -189,6 +191,10 @@ class Resolver:
     def visit_Super_Expr(self, expr: Super) -> None:
         if self.current_class == ClassType.NONE: ErrorReporter.error("Can't use 'super' outside of a class.", token=expr.keyword)
         elif self.current_class != ClassType.SUBCLASS: ErrorReporter.error("Can't use 'super' in a class with no superclass.", token=expr.keyword)
+        self.resolve_local(expr, expr.keyword)
+
+    def visit_Inner_Expr(self, expr: Inner) -> None:
+        if self.current_class == ClassType.NONE: ErrorReporter.error("Can't use 'inner' outside of a class.", token=expr.keyword)
         self.resolve_local(expr, expr.keyword)
 
     def visit_This_Expr(self, expr: This) -> None:

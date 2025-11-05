@@ -17,6 +17,7 @@ def main_expr():
         "Logical    = left: Expr, operator: Token, right: Expr",
         "Set        = obj: Expr, name: Token, value: Expr",
         "Super      = keyword: Token, method: Token",
+        "Inner      = keyword: Token, method: Token",
         "This       = keyword: Token",
         "Unary      = operator: Token, right: Expr",
         "Ternary    = condition: Expr, operator1: Token, expr_if_true: Expr, operator2: Token, expr_if_false: Expr",

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pylox.tokens import Token
-from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super
+from pylox.expr import Expr, Binary, Unary, Literal, Grouping, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super, Inner
 from pylox.tokentype import TokenType
 from pylox.error import ErrorReporter
 from pylox.stmt import Stmt, Print, Expression, Var, Block, If, While, Break, Function, Return, Class
@@ -12,6 +12,7 @@ class Parser:
         self._tokens: list[Token] = tokens
         self.current: int = 0
         self.in_loop: bool = False
+        self.in_function: tuple[bool, Optional[Token]] = (False, None)
 
     def parse(self) -> list[Stmt]:
         statements = []
@@ -54,6 +55,7 @@ class Parser:
             self.current -= 1
             return self.expression_statement()
         name: Optional[Token] = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        if name is not None: self.in_function = (True, name)
         parameters: list[Token] = []
         if not self.check(TokenType.LEFT_PAREN): is_getter = True
         else:
@@ -69,6 +71,7 @@ class Parser:
         self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.") # fstrings need double '{' to escape
         body: list[Stmt | None] = self.block()
         assert isinstance(name, Token)
+        self.in_function = (False, None)
         return Function(name, parameters, body, is_getter=is_getter)
     
     def var_declaration(self) -> Stmt:
@@ -322,6 +325,10 @@ class Parser:
     
     def call(self) -> Expr:
         expr: Expr = self.primary()
+        if isinstance(expr, Variable) and expr.name.lexeme == "inner":
+            keyword: Token = expr.name
+            if not self.in_function[0]: self.error(keyword, "'inner' should only be called inside a class method.")
+            expr = Inner(keyword, self.in_function[1])
         while True:
             if self.match([TokenType.LEFT_PAREN]): expr = self.finish_call(expr)
             elif self.match([TokenType.DOT]):
@@ -352,6 +359,11 @@ class Parser:
             self.consume(TokenType.DOT, "Expect '.' after 'super'.")
             method: Token = self.consume(TokenType.IDENTIFIER, "Expect superclass method name.")
             return Super(keyword, method)
+        if self.match([TokenType.INNER]):
+            keyword: Token = self.previous()
+            if not self.in_function[0]: self.error(keyword, "'inner' should only be called inside a class method.")
+            method: Token = self.in_function[1]
+            return Inner(keyword, method)
         if self.match([TokenType.THIS]): return This(self.previous())
         if self.match([TokenType.IDENTIFIER]): return Variable(self.previous())
         if self.match([TokenType.FUN]):

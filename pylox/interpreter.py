@@ -1,5 +1,5 @@
 from typing import cast, Optional
-from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super
+from pylox.expr import Expr, Literal, Grouping, Unary, Binary, Ternary, Variable, Assign, Logical, Call, Lambda, Get, Set, This, Super, Inner
 from pylox.tokentype import TokenType
 from pylox.tokens import Token
 from pylox.runtime_error import PyloxRuntimeError
@@ -148,7 +148,15 @@ class Interpreter:
             if (loxfunc := sc.find_method(expr.method.lexeme)) is not None:
                 method = loxfunc
                 break
-        if method is None: raise PyloxRuntimeError(expr.method, f"Undefined pproperty '{expr.method.lexeme}'.")
+        if method is None: raise PyloxRuntimeError(expr.method, f"Undefined property '{expr.method.lexeme}'.")
+        return method.bind(object)
+    
+    def visit_Inner_Expr(self, expr: Inner) -> object:
+        distance, unique_idx = self.locals.get(expr)
+        object: LoxInstance = self.__environment.get_at(distance, "this", idx=0)
+        method: Optional[LoxFunction] = None
+        if (loxfunc := object.klass.find_method(expr.method.lexeme, reverse = True)) is not None: method = loxfunc
+        if method is None: raise PyloxRuntimeError(expr.method, f"Undefined property '{expr.method.lexeme}'.")
         return method.bind(object)
 
     def visit_This_Expr(self, expr: This) -> object:
