@@ -75,6 +75,10 @@ class Interpreter:
         if superclasses: self.__environment = self.__environment.enclosing
         self.__environment.assign(stmt.name, klass, self.global_idxs[stmt.name.lexeme])
 
+    # C3 algorithm for MRO(method resolution order) similar to python
+    # key rules:
+    # 1. A class must precede its base classes (parents) in the MRO.
+    # 2. If a class C1 precedes a class C2 in the MRO of some class, then C1 must also precede C2 in the MRO of any subclass of that class. This rule prevents ambiguous or contradictory inheritance orders.
     def mro(self, klass: LoxClass, token: Token) -> list[LoxClass]:
         if not klass.superclasses: return [klass]
         return [klass] + self.merge([list(sc.mro) for sc in klass.superclasses] + [list(klass.superclasses)], token)
