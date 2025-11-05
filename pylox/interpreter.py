@@ -155,7 +155,7 @@ class Interpreter:
         distance, unique_idx = self.locals.get(expr)
         object: LoxInstance = self.__environment.get_at(distance, "this", idx=0)
         method: Optional[LoxFunction] = None
-        if (loxfunc := object.klass.find_method(expr.method.lexeme, reverse = True)) is not None: method = loxfunc
+        if (loxfunc := object.klass.find_method(expr.method.lexeme, ignore_first=True)) is not None: method = loxfunc
         if method is None: raise PyloxRuntimeError(expr.method, f"Undefined property '{expr.method.lexeme}'.")
         return method.bind(object)
 

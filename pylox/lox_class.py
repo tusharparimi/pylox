@@ -15,9 +15,9 @@ class LoxClass(LoxCallable, LoxInstance):
         self.methods = methods
         self.mro = mro
 
-    def find_method(self, name: str, reverse: bool = False) -> Optional[LoxFunction]:
-        mro = self.mro
-        if not reverse: mro = mro[-1::-1]
+    def find_method(self, name: str, ignore_first: bool = False) -> Optional[LoxFunction]:
+        mro = self.mro[-1::-1]
+        if ignore_first: mro = mro[1:]
         for sc in mro:
             if name in sc.methods: return sc.methods[name]
 
